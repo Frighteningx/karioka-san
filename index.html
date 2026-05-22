@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • Dark Mode</title>
+    <title>Karioka Pro • Dark Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -15,6 +15,7 @@
             --text-dim: #94a3b8;
             --danger: #f43f5e;
             --success: #10b981;
+            --border: rgba(255,255,255,0.08);
         }
 
         body {
@@ -29,138 +30,160 @@
             padding-bottom: 50px;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-        }
+        .container { max-width: 800px; margin: 0 auto; width: 100%; }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             text-align: center;
             background: linear-gradient(to right, #38bdf8, #818cf8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 20px 0;
+            margin: 30px 0;
+            letter-spacing: -1px;
         }
 
         .card {
             background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 20px;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
         }
 
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        h2 { font-size: 1.2rem; color: var(--accent); margin: 0; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h2 { font-size: 1.1rem; color: var(--accent); margin: 0; text-transform: uppercase; letter-spacing: 1px; }
 
         input {
             background: #0f172a;
             border: 1px solid #334155;
             color: white;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 10px;
             width: 100%;
             font-size: 1rem;
             outline: none;
+            transition: all 0.2s;
         }
 
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
         button {
             background: var(--accent);
             color: var(--bg);
             border: none;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        button:active { transform: scale(0.98); }
+        button:active { transform: scale(0.97); }
 
-        /* Estilo Tabla Karioka */
-        .table-wrapper { overflow-x: auto; margin-top: 15px; }
-        .karioka-table { width: 100%; border-collapse: collapse; }
-        .karioka-table th { padding: 12px; font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; }
-        .karioka-table td { padding: 8px; border-bottom: 1px solid #334155; }
-        .ronda-name { text-align: left; font-size: 0.9rem; font-weight: 600; width: 150px; }
-        .score-input { width: 60px !important; text-align: center; padding: 5px !important; }
+        /* --- EMOJI PICKER PROFESIONAL --- */
+        .player-form-row { display: flex; gap: 12px; align-items: center; position: relative; }
 
-        /* Emoji Picker */
-        .emoji-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .emoji-btn {
+        .emoji-trigger {
             background: #334155;
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .emoji-trigger:hover { background: #475569; }
+
+        .emoji-window {
+            position: absolute;
+            bottom: 60px; /* Aparece arriba del input */
+            left: 0;
+            background: var(--card);
+            border: 1px solid var(--accent);
+            border-radius: 15px;
+            padding: 15px;
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .emoji-option {
             font-size: 1.5rem;
             padding: 8px;
-            border-radius: 8px;
             cursor: pointer;
+            border-radius: 8px;
             text-align: center;
+            transition: background 0.2s;
         }
-        .emoji-btn.selected { border: 2px solid var(--accent); background: var(--accent-glow); }
+
+        .emoji-option:hover { background: var(--accent-glow); }
+        .emoji-option.selected { background: var(--accent); color: var(--bg); }
+
+        /* --- LISTAS Y CHIPS --- */
+        .player-list { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
 
         .player-chip {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: #334155;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            gap: 10px;
+            background: #1e293b;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 0.95rem;
             cursor: pointer;
-            border: 1px solid transparent;
+            border: 1px solid #334155;
+            transition: all 0.2s;
         }
-        .player-chip.active { border-color: var(--accent); background: var(--accent-glow); }
 
-        .btn-edit { font-size: 0.7rem; padding: 4px 8px; background: transparent; color: var(--text-dim); border: 1px solid var(--text-dim); }
+        .player-chip.active { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); font-weight: bold; }
+
+        .btn-edit { margin-left: 8px; background: transparent; color: var(--text-dim); border: 1px solid #334155; padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; }
+
+        /* --- TABLA --- */
+        .table-wrapper { overflow-x: auto; border-radius: 12px; background: #0f172a; padding: 10px; }
+        .karioka-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .karioka-table th { padding: 15px 10px; font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; border-bottom: 2px solid #334155; }
+        .karioka-table td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .ronda-name { text-align: left; font-weight: 500; font-size: 0.9rem; width: 180px; color: var(--text); }
+        .score-input { width: 70px !important; text-align: center; padding: 8px !important; background: #1e293b !important; }
+        .total-row { font-weight: 800; color: var(--accent); font-size: 1.3rem; background: rgba(56, 189, 248, 0.05); }
 
         .loader {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000;
         }
 
-        .total-row { font-weight: 900; color: var(--accent); font-size: 1.2rem; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div id="globalLoader" class="loader">
     <div style="text-align:center;">
-        <div style="border: 4px solid var(--accent); border-top: 4px solid transparent; width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite; margin: auto;"></div>
-        <p>Sincronizando la nube...</p>
+        <div style="border: 4px solid var(--accent); border-top: 4px solid transparent; width: 45px; height: 45px; border-radius: 50%; animation: spin 0.8s linear infinite; margin: auto;"></div>
+        <p style="margin-top:15px; font-weight: 600;">Sincronizando datos...</p>
     </div>
 </div>
 
 <div class="container">
-    <h1>Karioka Pro Tracker</h1>
+    <h1>Karioka Pro</h1>
 
     <div class="card">
         <div class="header-row">
-            <h2>Juego Actual</h2>
-            <button onclick="finalizarJuego()" style="background: var(--success); color: white;">Finalizar</button>
+            <h2>Partida en Vivo</h2>
+            <button onclick="finalizarJuego()" style="background: var(--success); color: white;">Finalizar Partida</button>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.9rem;">Toca los jugadores para incluirlos en la partida:</p>
-        <div id="chipsContainer" class="player-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;"></div>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 15px;">Selecciona participantes:</p>
+        <div id="chipsContainer" class="player-list"></div>
         
         <div id="gameZone" style="display:none;">
             <div class="table-wrapper">
@@ -175,28 +198,36 @@
 
     <div class="card">
         <div class="header-row">
-            <h2 id="playerActionTitle">Nuevo Jugador</h2>
-            <button id="cancelEditBtn" style="display:none; background: var(--danger);" onclick="resetPlayerForm()">Cancelar</button>
+            <h2 id="playerActionTitle">Gestión de Jugadores</h2>
+            <button id="cancelEditBtn" style="display:none; background: var(--danger); color: white;" onclick="resetPlayerForm()">Cancelar</button>
         </div>
-        <div class="emoji-grid">
-            <div class="emoji-btn" onclick="selectEmoji('👤')">👤</div>
-            <div class="emoji-btn" onclick="selectEmoji('🤴')">🤴</div>
-            <div class="emoji-btn" onclick="selectEmoji('🥷')">🥷</div>
-            <div class="emoji-btn" onclick="selectEmoji('🤡')">🤡</div>
-            <div class="emoji-btn" onclick="selectEmoji('👽')">👽</div>
-            <div class="emoji-btn" onclick="selectEmoji('🤖')">🤖</div>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="playerName" placeholder="Nombre...">
+
+        <div class="player-form-row">
+            <div class="emoji-trigger" id="currentEmoji" onclick="toggleEmojiWindow()">👤</div>
+            <div class="emoji-window" id="emojiWindow">
+                <div class="emoji-option" onclick="selectEmoji('👤')">👤</div>
+                <div class="emoji-option" onclick="selectEmoji('🤴')">🤴</div>
+                <div class="emoji-option" onclick="selectEmoji('🥷')">🥷</div>
+                <div class="emoji-option" onclick="selectEmoji('🤡')">🤡</div>
+                <div class="emoji-option" onclick="selectEmoji('👽')">👽</div>
+                <div class="emoji-option" onclick="selectEmoji('🤖')">🤖</div>
+                <div class="emoji-option" onclick="selectEmoji('👹')">👹</div>
+                <div class="emoji-option" onclick="selectEmoji('🌟')">🌟</div>
+            </div>
+            
+            <input type="text" id="playerName" placeholder="Nombre del jugador...">
             <button id="playerMainBtn" onclick="savePlayer()">Añadir</button>
         </div>
         
-        <div id="registeredPlayersList" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;"></div>
+        <p style="margin-top:25px; font-size: 0.8rem; color: var(--text-dim);">Registrados:</p>
+        <div id="registeredPlayersList" class="player-list"></div>
     </div>
 
     <div class="card">
-        <h2>Estadísticas Globales</h2>
-        <div style="height: 300px; margin-top:20px;">
+        <div class="header-row">
+            <h2>KPIs de Victoria</h2>
+        </div>
+        <div style="height: 350px;">
             <canvas id="statsChart"></canvas>
         </div>
     </div>
@@ -208,19 +239,38 @@
     
     let jugadores = [];
     let seleccionados = [];
-    let selectedEmoji = '👤';
+    let currentEmoji = '👤';
     let editingOldName = null;
     let chart = null;
 
     window.onload = loadData;
 
+    // --- LÓGICA EMOJI ---
+    function toggleEmojiWindow() {
+        const win = document.getElementById('emojiWindow');
+        win.style.display = (win.style.display === 'grid') ? 'none' : 'grid';
+    }
+
     function selectEmoji(e) {
-        selectedEmoji = e;
-        document.querySelectorAll('.emoji-btn').forEach(b => {
-            b.classList.toggle('selected', b.innerText === e);
+        currentEmoji = e;
+        document.getElementById('currentEmoji').innerText = e;
+        document.getElementById('emojiWindow').style.display = 'none';
+        
+        document.querySelectorAll('.emoji-option').forEach(opt => {
+            opt.classList.toggle('selected', opt.innerText === e);
         });
     }
 
+    // Cierra el selector si haces clic afuera
+    window.addEventListener('click', (e) => {
+        const win = document.getElementById('emojiWindow');
+        const trigger = document.getElementById('currentEmoji');
+        if (!win.contains(e.target) && e.target !== trigger) {
+            win.style.display = 'none';
+        }
+    });
+
+    // --- LÓGICA DE DATOS ---
     async function loadData() {
         showLoader(true);
         try {
@@ -228,7 +278,7 @@
             jugadores = await res.json();
             renderPlayers();
             renderStats();
-        } catch (e) { alert("Error de conexión"); }
+        } catch (e) { alert("Error al conectar con la base de datos."); }
         showLoader(false);
     }
 
@@ -239,19 +289,17 @@
         chips.innerHTML = '';
 
         jugadores.forEach(j => {
-            // Chips para juego
             const chip = document.createElement('div');
             chip.className = `player-chip ${seleccionados.includes(j.nombre) ? 'active' : ''}`;
             chip.innerHTML = j.nombre;
             chip.onclick = () => togglePlayer(j.nombre);
             chips.appendChild(chip);
 
-            // Lista para editar
-            const editRow = document.createElement('div');
-            editRow.className = 'player-chip';
-            editRow.style.cursor = 'default';
-            editRow.innerHTML = `${j.nombre} <button class="btn-edit" onclick="startEdit('${j.nombre}')">Edit</button>`;
-            list.appendChild(editRow);
+            const editBadge = document.createElement('div');
+            editBadge.className = 'player-chip';
+            editBadge.style.cursor = 'default';
+            editBadge.innerHTML = `${j.nombre} <button class="btn-edit" onclick="startEdit('${j.nombre}')">Editar</button>`;
+            list.appendChild(editBadge);
         });
         updateGameTable();
     }
@@ -271,7 +319,7 @@
         if (seleccionados.length === 0) { zone.style.display = 'none'; return; }
         zone.style.display = 'block';
 
-        head.innerHTML = '<th>Ronda</th>' + seleccionados.map(n => `<th>${n.split(' ')[0]}</th>`).join('');
+        head.innerHTML = '<th>Ronda</th>' + seleccionados.map(n => `<th>${n.split(' ')[1] || n}</th>`).join('');
         
         body.innerHTML = RONDAS.map(r => `
             <tr>
@@ -293,19 +341,20 @@
 
     function startEdit(fullName) {
         editingOldName = fullName;
-        const emoji = fullName.substring(0, 2);
+        const emoji = fullName.substring(0, 2).trim();
         const name = fullName.substring(2).trim();
         document.getElementById('playerName').value = name;
-        selectEmoji(emoji);
-        document.getElementById('playerActionTitle').innerText = "Editando Jugador";
+        selectEmoji(emoji || '👤');
+        document.getElementById('playerActionTitle').innerText = "Editando Perfil";
         document.getElementById('playerMainBtn').innerText = "Actualizar";
         document.getElementById('cancelEditBtn').style.display = "block";
+        window.scrollTo({ top: 400, behavior: 'smooth' });
     }
 
     function resetPlayerForm() {
         editingOldName = null;
         document.getElementById('playerName').value = "";
-        document.getElementById('playerActionTitle').innerText = "Nuevo Jugador";
+        document.getElementById('playerActionTitle').innerText = "Gestión de Jugadores";
         document.getElementById('playerMainBtn').innerText = "Añadir";
         document.getElementById('cancelEditBtn').style.display = "none";
         selectEmoji('👤');
@@ -314,7 +363,7 @@
     async function savePlayer() {
         const rawName = document.getElementById('playerName').value.trim();
         if(!rawName) return;
-        const newFullName = selectedEmoji + " " + rawName;
+        const newFullName = currentEmoji + " " + rawName;
 
         showLoader(true);
         const payload = editingOldName 
@@ -327,14 +376,14 @@
     }
 
     async function finalizarJuego() {
-        if(seleccionados.length < 2) return alert("Mínimo 2 jugadores");
+        if(seleccionados.length < 2) return alert("Se requieren al menos 2 jugadores.");
         
         let results = seleccionados.map(n => ({
             nombre: n,
             score: parseInt(document.getElementById(`total_${n}`).innerText)
         })).sort((a,b) => a.score - b.score);
 
-        if(!confirm(`Ganador: ${results[0].nombre}. ¿Guardar?`)) return;
+        if(!confirm(`🏆 El ganador es ${results[0].nombre}. ¿Subir resultados a la nube?`)) return;
 
         showLoader(true);
         await fetch(API_URL, {
@@ -358,27 +407,23 @@
             data: {
                 labels: jugadores.map(j => j.nombre),
                 datasets: [
-                    { label: '🏆 Ganados', data: jugadores.map(j => j.ganados), backgroundColor: '#10b981' },
-                    { label: '💀 Perdidos', data: jugadores.map(j => j.perdidos), backgroundColor: '#f43f5e' }
+                    { label: 'Ganados', data: jugadores.map(j => j.ganados), backgroundColor: '#10b981', borderRadius: 5 },
+                    { label: 'Perdidos', data: jugadores.map(j => j.perdidos), backgroundColor: '#f43f5e', borderRadius: 5 }
                 ]
             },
             options: {
                 maintainAspectRatio: false,
                 scales: { 
-                    y: { stacked: true, grid: { color: '#334155' } },
-                    x: { stacked: true, grid: { display: false } }
+                    y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { stacked: true, grid: { display: false }, ticks: { color: '#f1f5f9' } }
                 },
-                plugins: { legend: { labels: { color: '#f1f5f9' } } }
+                plugins: { legend: { position: 'top', labels: { color: '#f1f5f9', font: { size: 12, weight: '600' } } } }
             }
         });
     }
 
     function showLoader(show) { document.getElementById('globalLoader').style.display = show ? 'flex' : 'none'; }
 </script>
-
-<style>
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-</style>
 
 </body>
 </html>
