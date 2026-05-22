@@ -3,164 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • Ultimate</title>
+    <title>Karioka Pro • Master 6.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f1f5f9; --text-dim: #94a3b8; --success: #10b981; --danger: #f43f5e; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 15px; padding-bottom: 100px; }
-        .container { max-width: 850px; margin: 0 auto; }
-        .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        h1 { text-align: center; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* Botones y Inputs */
-        button { background: var(--accent); color: var(--bg); border: none; padding: 12px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 10px; width: 100%; outline: none; }
-        
-        /* Chips de Jugadores */
-        .chip { display: inline-flex; align-items: center; gap: 8px; background: #334155; padding: 8px 15px; border-radius: 20px; cursor: pointer; margin: 5px; border: 1px solid transparent; }
-        .chip.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.2); color: var(--accent); }
-        
-        /* Tabla Karioka */
-        .table-container { overflow-x: auto; margin-top: 15px; }
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f1f5f9; --text-dim: #94a3b8; --success: #10b981; --danger: #f43f5e; --border: rgba(255,255,255,0.06); }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 15px; padding-bottom: 80px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: var(--card); border-radius: 20px; padding: 22px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        h1 { text-align: center; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.8rem; margin: 20px 0; }
+        button { background: var(--accent); color: var(--bg); border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.96); }
+        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 10px; width: 100%; outline: none; margin-bottom: 10px; }
+        .chip { display: inline-flex; align-items: center; gap: 8px; background: #334155; padding: 10px 18px; border-radius: 30px; cursor: pointer; margin: 5px; border: 1px solid transparent; font-size: 0.9rem; }
+        .chip.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.15); color: var(--accent); font-weight: bold; }
+        .table-wrap { overflow-x: auto; margin-top: 15px; border-radius: 12px; background: #0b1120; border: 1px solid var(--border); }
         .k-table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        .k-table th, .k-table td { padding: 10px; border-bottom: 1px solid #334155; text-align: center; }
-        .score-in { width: 50px; text-align: center; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 5px; padding: 5px; }
-        
-        /* Cartas */
-        .hand { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
-        .card-v { width: 50px; height: 75px; background: white; color: #1e293b; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 2px solid #cbd5e1; }
-        .card-v.red { color: var(--danger); }
-        .card-v.sel { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
-        
-        /* Popover Emoji */
-        .emoji-pop { position: absolute; background: var(--card); border: 1px solid var(--accent); border-radius: 15px; padding: 10px; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; z-index: 100; bottom: 60px; }
-
-        .loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,0.9); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .spinner { border: 4px solid var(--accent); border-top: 4px solid transparent; width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite; }
+        .k-table th, .k-table td { padding: 12px; border-bottom: 1px solid #334155; text-align: center; }
+        .score-in { width: 55px; text-align: center; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px; padding: 6px; }
+        .emoji-pop { position: absolute; background: var(--card); border: 1px solid var(--accent); border-radius: 20px; padding: 15px; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; z-index: 1000; bottom: 70px; left: 0; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .hist-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--accent); }
+        .hist-winner-btn { background: transparent; color: var(--success); font-weight: bold; border: none; cursor: pointer; text-decoration: underline; font-size: 1.1rem; }
+        .detalle-tabla { display: none; margin-top: 15px; padding: 10px; background: #0b1120; border-radius: 10px; }
+        .loader { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(15,23,42,0.95); display: none; justify-content: center; align-items: center; z-index: 5000; }
+        .spinner { border: 4px solid var(--accent); border-top: 4px solid transparent; width: 50px; height: 40px; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loader"><div class="spinner"></div></div>
+<div id="loader" class="loader"><div style="text-align:center;"><div class="spinner"></div><p id="loaderMsg" style="margin-top:20px; font-weight:bold;">SINCRONIZANDO...</p></div></div>
 
 <div class="container">
-    <h1>Karioka Pro Ultimate</h1>
+    <h1>Karioka Pro Master</h1>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="font-size:1rem; color:var(--accent);">MODO DE JUEGO</h2>
-            <button id="btnMain" onclick="gestionarJuego()">Iniciar Partida</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="font-size:0.9rem; color:var(--accent); letter-spacing:1px;">MESA DE JUEGO</h2>
+            <button id="btnMain" onclick="gestionarPartida()">Iniciar Nueva Partida</button>
         </div>
-        <div id="jugadoresPartida" style="margin-top:15px;"></div>
+        <div id="chipsPartida"></div>
         
         <div id="zonaJuego" style="display:none; margin-top:20px;">
-            <div class="table-container">
+            <div class="table-wrap">
                 <table class="k-table">
                     <thead id="hTable"></thead>
                     <tbody id="bTable"></tbody>
                     <tfoot id="fTable"></tfoot>
                 </table>
             </div>
-            
-            <div id="onlineCards" style="display:none; border-top:1px solid #334155; margin-top:20px; padding-top:20px;">
-                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:20px;">
-                    <div onclick="accionCarta('robar')" style="width:60px; height:90px; background:#334155; border:2px dashed var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.7rem;">MAZO</div>
-                    <div id="pozo" style="width:60px; height:90px; background:white; color:#1e293b; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem;">--</div>
-                </div>
-                <div id="miMano" class="hand"></div>
-                <button id="btnTirar" onclick="accionCarta('tirar')" style="width:100%; margin-top:20px; background:var(--danger); display:none;">Tirar Carta Seleccionada</button>
-            </div>
         </div>
     </div>
 
     <div class="card" style="position:relative;">
-        <h2 style="font-size:1rem; color:var(--accent); margin-bottom:15px;">GESTIÓN JUGADORES</h2>
-        <div style="display:flex; gap:10px;">
-            <div id="emojiBtn" onclick="toggleEmoji()" style="background:#334155; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;">👤</div>
-            <input type="text" id="nameIn" placeholder="Nombre...">
+        <h2 style="font-size:0.9rem; color:var(--accent); margin-bottom:15px;">GESTIÓN DE PERFILES</h2>
+        <div style="display:flex; gap:12px;">
+            <div id="emojiBtn" onclick="toggleEmoji()" style="background:#334155; padding:12px; border-radius:12px; cursor:pointer; font-size:1.6rem; min-width:55px; text-align:center;">👤</div>
+            <input type="text" id="nameIn" placeholder="Nombre del jugador...">
             <button onclick="addJugador()">Añadir</button>
         </div>
         <div id="emojiWindow" class="emoji-pop">
             <div onclick="setEmoji('👤')">👤</div><div onclick="setEmoji('🦁')">🦁</div><div onclick="setEmoji('🐯')">🐯</div>
-            <div onclick="setEmoji('🦊')">🦊</div><div onclick="setEmoji('🦄')">🦄</div><div onclick="setEmoji('🔥')">🔥</div>
-            <div onclick="setEmoji('💎')">💎</div><div onclick="setEmoji('🍀')">🍀</div><div onclick="setEmoji('🤴')">🤴</div>
-            <div onclick="setEmoji('🥷')">🥷</div>
+            <div onclick="setEmoji('🦊')">🦊</div><div onclick="setEmoji('🦄')">🦄</div><div onclick="setEmoji('🤖')">🤖</div>
+            <div onclick="setEmoji('🥷')">🥷</div><div onclick="setEmoji('💎')">💎</div><div onclick="setEmoji('🔥')">🔥</div><div onclick="setEmoji('🐙')">🐙</div>
         </div>
-        <div id="listaTodos" style="margin-top:20px;"></div>
+        <div id="listaTodos" style="margin-top:20px; display:flex; flex-wrap:wrap;"></div>
     </div>
 
     <div class="card">
-        <h2 style="font-size:1rem; color:var(--accent);">RANKING KPI</h2>
-        <div style="height:250px;"><canvas id="chart"></canvas></div>
+        <h2 style="font-size:0.9rem; color:var(--accent); margin-bottom:15px;">RANKING DE VICTORIAS</h2>
+        <div style="height:250px;"><canvas id="statsChart"></canvas></div>
     </div>
 
     <details class="card">
-        <summary style="cursor:pointer; font-weight:bold; color:var(--accent);">HISTORIAL DE AUDITORÍA</summary>
-        <div id="historial" style="margin-top:15px;"></div>
+        <summary style="cursor:pointer; font-weight:bold; color:var(--accent);">AUDITORÍA DE PARTIDAS</summary>
+        <div id="historialList" style="margin-top:20px;"></div>
     </details>
 </div>
 
 <script>
+    // CAMBIA ESTA URL POR LA TUYA (/exec)
     const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec";
     const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
-    
-    let db = { jugadores: [], historial: [] };
-    let seleccionados = [];
-    let emoji = "👤";
-    let activo = false;
-    let tsInicio = null;
-    let selCarta = null;
-    let miNombre = "";
 
-    window.onload = load;
+    let state = { jugadores: [], historial: [], seleccionados: [], emoji: "👤", activo: false, tsInicio: null };
+    let myChart = null;
 
-    async function load() {
-        showL(true);
+    window.onload = init;
+
+    async function init() {
+        showL(true, "Cargando datos...");
         try {
-            const r = await fetch(API_URL);
-            db = await r.json();
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            if(data.error) throw new Error(data.error);
+            state.jugadores = data.jugadores || [];
+            state.historial = data.historial || [];
             render();
-        } catch(e) { alert("Error de conexión. Verifica tu URL de Apps Script."); }
+        } catch (e) {
+            alert("ERROR DE CONEXIÓN: Verifica que el ID de la hoja sea correcto y que hayas publicado el script para 'Cualquier persona'.\nDetalle: " + e.message);
+        }
         showL(false);
     }
 
     function render() {
-        const pZone = document.getElementById('jugadoresPartida');
+        const pZone = document.getElementById('chipsPartida');
         const lZone = document.getElementById('listaTodos');
         pZone.innerHTML = ''; lZone.innerHTML = '';
 
-        db.jugadores.forEach(j => {
+        state.jugadores.forEach(j => {
             const c = document.createElement('div');
-            c.className = `chip ${seleccionados.includes(j.nombre) ? 'active' : ''}`;
+            c.className = `chip ${state.seleccionados.includes(j.nombre) ? 'active' : ''}`;
             c.innerHTML = j.nombre;
-            c.onclick = () => { if(!activo) toggleSel(j.nombre); };
+            c.onclick = () => { if(!state.activo) togglePlayer(j.nombre); };
             pZone.appendChild(c);
 
             const i = document.createElement('div');
-            i.className = 'chip';
+            i.className = 'chip'; i.style.opacity = "0.7";
             i.innerHTML = j.nombre + " ✏️";
             lZone.appendChild(i);
         });
-        updateTable();
+
         renderChart();
-        renderHist();
+        renderHistorial();
     }
 
-    function toggleSel(n) {
-        if(seleccionados.includes(n)) seleccionados = seleccionados.filter(x => x !== n);
-        else seleccionados.push(n);
+    function togglePlayer(n) {
+        if(state.seleccionados.includes(n)) state.seleccionados = state.seleccionados.filter(x => x !== n);
+        else state.seleccionados.push(n);
         render();
     }
 
-    function gestionarJuego() {
-        if(!activo) {
-            if(seleccionados.length < 2) return alert("Mínimo 2 jugadores.");
-            activo = true;
-            tsInicio = Date.now();
-            document.getElementById('btnMain').innerText = "Finalizar Juego";
+    function gestionarPartida() {
+        if(!state.activo) {
+            if(state.seleccionados.length < 2) return alert("Selecciona al menos 2 jugadores.");
+            state.activo = true;
+            state.tsInicio = Date.now();
+            document.getElementById('btnMain').innerText = "Finalizar Partida";
+            document.getElementById('btnMain').style.background = "var(--success)";
             document.getElementById('zonaJuego').style.display = 'block';
+            updateTable();
         } else {
             finalizar();
         }
@@ -170,57 +151,121 @@
         const h = document.getElementById('hTable');
         const b = document.getElementById('bTable');
         const f = document.getElementById('fTable');
-        
-        h.innerHTML = `<tr><th>Fase</th>${seleccionados.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
-        b.innerHTML = RONDAS.map((r, ri) => `<tr><td style="text-align:left;">${r}</td>${seleccionados.map(n => `<td><input type="number" class="score-in" data-p="${n}" oninput="sum()"></td>`).join('')}</tr>`).join('');
-        f.innerHTML = `<tr style="color:var(--accent); font-weight:bold;"><td>TOTAL</td>${seleccionados.map(n => `<td id="t_${n}">0</td>`).join('')}</tr>`;
+        h.innerHTML = `<tr><th>Fase</th>${state.seleccionados.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
+        b.innerHTML = RONDAS.map(r => `<tr><td style="text-align:left; font-size:0.8rem;">${r}</td>${state.seleccionados.map(n => `<td><input type="number" class="score-in" data-p="${n}" oninput="sumar()"></td>`).join('')}</tr>`).join('');
+        f.innerHTML = `<tr style="color:var(--accent); font-weight:800;"><td>TOTAL</td>${state.seleccionados.map(n => `<td id="total_${n}">0</td>`).join('')}</tr>`;
     }
 
-    function sum() {
-        seleccionados.forEach(n => {
+    function sumar() {
+        state.seleccionados.forEach(n => {
             let t = 0;
             document.querySelectorAll(`[data-p="${n}"]`).forEach(i => t += (parseInt(i.value)||0));
-            document.getElementById(`t_${n}`).innerText = t;
+            document.getElementById(`total_${n}`).innerText = t;
         });
     }
 
     async function finalizar() {
-        let r = seleccionados.map(n => ({ n, s: parseInt(document.getElementById(`t_${n}`).innerText) })).sort((a,b) => a.s - b.s);
-        if(!confirm(`Ganador: ${r[0].n}. ¿Guardar?`)) return;
+        let results = state.seleccionados.map(n => ({ nombre: n, score: parseInt(document.getElementById(`total_${n}`).innerText) })).sort((a,b) => a.score - b.score);
+        if(!confirm(`🏆 El ganador es ${results[0].nombre}. ¿Guardar resultados?`)) return;
 
-        showL(true);
-        const data = {
-            accion: "guardar_juego",
-            tsInicio, tsFin: Date.now(),
-            inicio: new Date(tsInicio).toLocaleString(),
-            fin: new Date().toLocaleString(),
-            ganador: r[0].n,
-            perdedores: r.slice(1).map(x => x.n),
-            puntaje: r[0].s,
-            tabla: { jugadores: seleccionados, rondas: RONDAS }
-        };
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
-        activo = false; seleccionados = [];
-        document.getElementById('btnMain').innerText = "Iniciar Partida";
+        showL(true, "Guardando partida...");
+        const tsFin = Date.now();
+        const d = new Date();
+
+        let tablaCompleta = { jugadores: state.seleccionados, rondas: RONDAS, puntos: {} };
+        state.seleccionados.forEach(n => {
+            tablaCompleta.puntos[n] = Array.from(document.querySelectorAll(`[data-p="${n}"]`)).map(i => parseInt(i.value)||0);
+        });
+
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                accion: "guardar_juego",
+                tsInicio: state.tsInicio, tsFin: tsFin,
+                fechaStr: d.toLocaleDateString(),
+                horaInicioStr: new Date(state.tsInicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+                horaFinStr: d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+                ganador: results[0].nombre,
+                perdedores: results.slice(1).map(x => x.nombre),
+                puntajeGanador: results[0].score,
+                tablaCompleta: tablaCompleta
+            }),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
+
+        state.activo = false; state.seleccionados = [];
+        document.getElementById('btnMain').innerText = "Iniciar Nueva Partida";
+        document.getElementById('btnMain').style.background = "var(--accent)";
         document.getElementById('zonaJuego').style.display = 'none';
-        await load();
+        await init();
     }
 
-    // Helpers
-    function showL(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-    function toggleEmoji() { const w = document.getElementById('emojiWindow'); w.style.display = w.style.display === 'grid' ? 'none' : 'grid'; }
-    function setEmoji(e) { emoji = e; document.getElementById('emojiBtn').innerText = e; toggleEmoji(); }
-    async function addJugador() {
-        const n = document.getElementById('nameIn').value;
-        if(!n) return;
-        showL(true);
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ accion: "nuevo_jugador", nombre: emoji + " " + n }) });
-        document.getElementById('nameIn').value = "";
-        await load();
+    function renderHistorial() {
+        const zone = document.getElementById('historialList');
+        if(state.historial.length === 0) { zone.innerHTML = "<p style='text-align:center; opacity:0.5;'>Sin historial.</p>"; return; }
+        
+        zone.innerHTML = state.historial.map((h, i) => {
+            let mini = '';
+            if(h.detalles) {
+                mini = `<div id="det_${i}" class="detalle-tabla"><table class="k-table" style="font-size:0.7rem;"><thead><tr><th>Fase</th>`;
+                h.detalles.jugadores.forEach(j => mini += `<th>${j.split(' ')[1]||j}</th>`);
+                mini += `</tr></thead><tbody>`;
+                h.detalles.rondas.forEach((r, ri) => {
+                    mini += `<tr><td>${r}</td>`;
+                    h.detalles.jugadores.forEach(j => mini += `<td>${h.detalles.puntos[j][ri]}</td>`);
+                    mini += `</tr>`;
+                });
+                mini += `</tbody></table></div>`;
+            }
+            return `
+                <div class="hist-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <button class="hist-winner-btn" onclick="toggleDet(${i})">🏆 ${h.ganador}</button>
+                        <div style="text-align:right;">
+                            <span style="color:var(--accent); font-weight:bold;">${h.puntaje} pts</span>
+                            <div style="font-size:0.6rem; opacity:0.6;">⏱ ${h.duracion}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.65rem; opacity:0.5; margin:5px 0;">${h.fecha} | ${h.inicio} - ${h.fin}</div>
+                    ${mini}
+                </div>
+            `;
+        }).join('');
     }
-    
-    function renderChart() { /* Lógica de Chart.js */ }
-    function renderHist() { /* Lógica de historial detallado */ }
+
+    async function addJugador() {
+        const name = document.getElementById('nameIn').value.trim();
+        if(!name) return;
+        showL(true, "Añadiendo jugador...");
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ accion: "nuevo_jugador", nombre: state.emoji + " " + name }),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
+        document.getElementById('nameIn').value = '';
+        await init();
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: state.jugadores.map(j => j.nombre),
+                datasets: [{ label: 'Ganadas', data: state.jugadores.map(j => j.ganados), backgroundColor: '#10b981' }]
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+        });
+    }
+
+    function toggleDet(i) { const el = document.getElementById(`det_${i}`); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
+    function toggleEmoji() { const w = document.getElementById('emojiWindow'); w.style.display = (w.style.display === 'grid') ? 'none' : 'grid'; }
+    function setEmoji(e) { state.emoji = e; document.getElementById('emojiBtn').innerText = e; toggleEmoji(); }
+    function showL(s, msg = "SINCRONIZANDO...") { 
+        document.getElementById('loaderMsg').innerText = msg;
+        document.getElementById('loader').style.display = s ? 'flex' : 'none'; 
+    }
 </script>
 </body>
 </html>
