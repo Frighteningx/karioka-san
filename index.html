@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • Dark Edition</title>
+    <title>Karioka Pro • Auditoría Dark</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -25,68 +25,38 @@
         }
 
         .container { max-width: 800px; margin: 0 auto; width: 100%; }
+        h1 { font-size: 2rem; text-align: center; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 30px 0; }
 
-        h1 {
-            font-size: 2rem; text-align: center;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 30px 0;
-        }
-
-        .card {
-            background: var(--card); border-radius: 20px; padding: 24px;
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border); margin-bottom: 24px;
-        }
-
+        .card { background: var(--card); border-radius: 20px; padding: 24px; box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.3); border: 1px solid var(--border); margin-bottom: 24px; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         h2 { font-size: 1rem; color: var(--accent); margin: 0; text-transform: uppercase; letter-spacing: 1px; }
 
-        input {
-            background: #0f172a; border: 1px solid #334155; color: white;
-            padding: 14px; border-radius: 10px; width: 100%; font-size: 1rem; outline: none;
-        }
-
-        button {
-            background: var(--accent); color: var(--bg); border: none;
-            padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer;
-        }
+        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 10px; width: 100%; font-size: 1rem; outline: none; }
+        button { background: var(--accent); color: var(--bg); border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; }
 
         /* --- EMOJI PICKER --- */
         .player-form-row { display: flex; gap: 12px; align-items: center; position: relative; }
-        .emoji-trigger {
-            background: #334155; min-width: 50px; height: 50px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; border-radius: 10px; cursor: pointer; border: 1px solid var(--border);
-        }
-        .emoji-window {
-            position: absolute; bottom: 60px; left: 0;
-            background: var(--card); border: 1px solid var(--accent);
-            border-radius: 15px; padding: 15px; display: none;
-            grid-template-columns: repeat(5, 1fr); gap: 10px;
-            z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            max-height: 250px; overflow-y: auto;
-        }
+        .emoji-trigger { background: #334155; min-width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border-radius: 10px; cursor: pointer; border: 1px solid var(--border); }
+        .emoji-window { position: absolute; bottom: 60px; left: 0; background: var(--card); border: 1px solid var(--accent); border-radius: 15px; padding: 15px; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 250px; overflow-y: auto; }
         .emoji-option { font-size: 1.5rem; padding: 8px; cursor: pointer; border-radius: 8px; transition: 0.2s; }
         .emoji-option:hover { background: var(--accent-glow); }
 
-        /* --- TABLA --- */
+        /* --- TABLAS --- */
         .table-wrapper { overflow-x: auto; border-radius: 12px; background: #0f172a; padding: 10px; }
         .karioka-table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        .karioka-table th { padding: 15px 10px; font-size: 0.75rem; color: var(--text-dim); border-bottom: 2px solid #334155; }
-        .ronda-name { text-align: left; font-size: 0.85rem; color: var(--text); }
-        .score-input { width: 60px !important; text-align: center; padding: 6px !important; background: #1e293b !important; color: white; border: 1px solid #334155; }
-        .total-row { font-weight: 800; color: var(--accent); font-size: 1.2rem; }
+        .karioka-table th { padding: 12px 10px; font-size: 0.7rem; color: var(--text-dim); border-bottom: 2px solid #334155; text-transform: uppercase; }
+        .ronda-name { text-align: left; font-size: 0.8rem; color: var(--text); width: 150px; }
+        .score-input { width: 55px !important; text-align: center; padding: 5px !important; background: #1e293b !important; color: white; border: 1px solid #334155; border-radius: 5px; }
+        .total-row { font-weight: 800; color: var(--accent); font-size: 1.1rem; }
 
-        /* --- DESPLEGABLE HISTORIAL --- */
-        details summary {
-            padding: 15px; background: var(--card); border-radius: 12px;
-            cursor: pointer; font-weight: bold; color: var(--accent);
-            list-style: none; border: 1px solid var(--border);
-        }
-        details[open] summary { border-radius: 12px 12px 0 0; }
-        .history-content { background: #161e2e; padding: 15px; border-radius: 0 0 12px 12px; border: 1px solid var(--border); border-top: none; }
-        .history-item { border-bottom: 1px solid #2d3748; padding: 10px 0; font-size: 0.85rem; }
-        .history-item:last-child { border: none; }
+        /* --- HISTORIAL --- */
+        details summary { padding: 15px; background: var(--card); border-radius: 12px; cursor: pointer; font-weight: bold; color: var(--accent); list-style: none; border: 1px solid var(--border); }
+        .history-content { background: #0f172a; padding: 15px; border-radius: 0 0 12px 12px; border: 1px solid var(--border); border-top: none; }
+        .history-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--accent); }
+        .history-card.winner-highlight { border-left-color: var(--success); }
+        .mini-table { width: 100%; font-size: 0.7rem; margin-top: 10px; border-collapse: collapse; color: var(--text-dim); }
+        .mini-table th, .mini-table td { border: 1px solid #334155; padding: 4px; text-align: center; }
+        .mini-table .win-col { background: rgba(16, 185, 129, 0.1); color: var(--success); font-weight: bold; }
 
         .loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -99,7 +69,7 @@
 <div id="globalLoader" class="loader">
     <div style="text-align:center;">
         <div style="border: 4px solid var(--accent); border-top: 4px solid transparent; width: 45px; height: 45px; border-radius: 50%; animation: spin 0.8s linear infinite; margin: auto;"></div>
-        <p style="margin-top:15px;">Sincronizando datos...</p>
+        <p style="margin-top:15px; font-weight: 600;">Procesando datos...</p>
     </div>
 </div>
 
@@ -108,8 +78,8 @@
 
     <div class="card">
         <div class="header-row">
-            <h2>Partida en Vivo</h2>
-            <button onclick="finalizarJuego()" style="background: var(--success); color: white;">Finalizar</button>
+            <h2>Partida en Curso</h2>
+            <button onclick="finalizarJuego()" style="background: var(--success); color: white;">Finalizar y Guardar</button>
         </div>
         <div id="chipsContainer" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
         
@@ -135,31 +105,25 @@
                 <div class="emoji-option" onclick="selectEmoji('👤')">👤</div><div class="emoji-option" onclick="selectEmoji('🤴')">🤴</div>
                 <div class="emoji-option" onclick="selectEmoji('🥷')">🥷</div><div class="emoji-option" onclick="selectEmoji('🤡')">🤡</div>
                 <div class="emoji-option" onclick="selectEmoji('👽')">👽</div><div class="emoji-option" onclick="selectEmoji('🤖')">🤖</div>
-                <div class="emoji-option" onclick="selectEmoji('🦁')">🦁</div><div class="emoji-option" onclick="selectEmoji('🐯')">🐯</div>
-                <div class="emoji-option" onclick="selectEmoji('🦊')">🦊</div><div class="emoji-option" onclick="selectEmoji('🐶')">🐶</div>
-                <div class="emoji-option" onclick="selectEmoji('🐭')">🐭</div><div class="emoji-option" onclick="selectEmoji('🐸')">🐸</div>
-                <div class="emoji-option" onclick="selectEmoji('🐙')">🐙</div><div class="emoji-option" onclick="selectEmoji('🦄')">🦄</div>
-                <div class="emoji-option" onclick="selectEmoji('🐲')">🐲</div><div class="emoji-option" onclick="selectEmoji('🌸')">🌸</div>
-                <div class="emoji-option" onclick="selectEmoji('🌻')">🌻</div><div class="emoji-option" onclick="selectEmoji('🌴')">🌴</div>
-                <div class="emoji-option" onclick="selectEmoji('🔥')">🔥</div><div class="emoji-option" onclick="selectEmoji('🍀')">🍀</div>
-                <div class="emoji-option" onclick="selectEmoji('🌮')">🌮</div><div class="emoji-option" onclick="selectEmoji('🍕')">🍕</div>
-                <div class="emoji-option" onclick="selectEmoji('💎')">💎</div>
+                <div class="emoji-option" onclick="selectEmoji('🦁')">🦁</div><div class="emoji-option" onclick="selectEmoji('🦄')">🦄</div>
+                <div class="emoji-option" onclick="selectEmoji('🐲')">🐲</div><div class="emoji-option" onclick="selectEmoji('🔥')">🔥</div>
+                <div class="emoji-option" onclick="selectEmoji('💎')">💎</div><div class="emoji-option" onclick="selectEmoji('🍀')">🍀</div>
             </div>
             <input type="text" id="playerName" placeholder="Nombre...">
             <button id="playerMainBtn" onclick="savePlayer()">Añadir</button>
         </div>
-        <div id="registeredPlayersList" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;"></div>
+        <div id="registeredPlayersList" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:20px;"></div>
     </div>
 
     <div class="card">
-        <h2>Ranking Global</h2>
-        <div style="height: 300px;"><canvas id="statsChart"></canvas></div>
+        <h2>Ranking Histórico</h2>
+        <div style="height: 280px;"><canvas id="statsChart"></canvas></div>
     </div>
 
     <details>
-        <summary>Ver Historial de Partidas Anteriores</summary>
+        <summary>Historial de Juegos Completos</summary>
         <div class="history-content" id="historyList">
-            <p style="color: var(--text-dim); text-align: center;">No hay partidas registradas.</p>
+            <p style="color: var(--text-dim); text-align: center; padding: 20px;">No hay partidas registradas.</p>
         </div>
     </details>
 </div>
@@ -194,12 +158,12 @@
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
-            jugadores = data.jugadores;
-            historial = data.historial;
+            jugadores = data.jugadores || [];
+            historial = data.historial || [];
             renderPlayers();
             renderStats();
             renderHistory();
-        } catch (e) { alert("Error de conexión"); }
+        } catch (e) { console.error(e); }
         showLoader(false);
     }
 
@@ -217,7 +181,7 @@
 
             const item = document.createElement('div');
             item.className = 'player-chip';
-            item.innerHTML = `${j.nombre} <span onclick="startEdit('${j.nombre}')" style="margin-left:8px; opacity:0.5; cursor:pointer;">✏️</span>`;
+            item.innerHTML = `${j.nombre} <span onclick="startEdit('${j.nombre}')" style="cursor:pointer; opacity:0.6;">✏️</span>`;
             list.appendChild(item);
         });
         updateGameTable();
@@ -239,7 +203,7 @@
         zone.style.display = 'block';
 
         document.getElementById('tableHeader').innerHTML = '<th>Ronda</th>' + seleccionados.map(n => `<th>${n.split(' ')[1] || n}</th>`).join('');
-        document.getElementById('tableBody').innerHTML = RONDAS.map(r => `<tr><td class="ronda-name">${r}</td>${seleccionados.map(n => `<td><input type="number" class="score-input" data-player="${n}" oninput="calcTotal()"></td>`).join('')}</tr>`).join('');
+        document.getElementById('tableBody').innerHTML = RONDAS.map((r, ri) => `<tr><td class="ronda-name">${r}</td>${seleccionados.map(n => `<td><input type="number" class="score-input" data-player="${n}" data-ronda="${ri}" oninput="calcTotal()"></td>`).join('')}</tr>`).join('');
         document.getElementById('tableFooter').innerHTML = '<td>TOTAL</td>' + seleccionados.map(n => `<td id="total_${n}">0</td>`).join('');
     }
 
@@ -264,8 +228,24 @@
 
     async function finalizarJuego() {
         if(seleccionados.length < 2) return;
+        
+        // Recolectar matriz completa de puntos
+        let tablaCompleta = {
+            rondas: RONDAS,
+            jugadores: seleccionados,
+            puntos: {}
+        };
+
+        seleccionados.forEach(n => {
+            tablaCompleta.puntos[n] = [];
+            document.querySelectorAll(`.score-input[data-player="${n}"]`).forEach(input => {
+                tablaCompleta.puntos[n].push(parseInt(input.value) || 0);
+            });
+        });
+
         let res = seleccionados.map(n => ({ nombre: n, score: parseInt(document.getElementById(`total_${n}`).innerText) })).sort((a,b) => a.score - b.score);
-        if(!confirm(`Ganador: ${res[0].nombre}. ¿Guardar resultados?`)) return;
+        
+        if(!confirm(`🏆 El ganador es ${res[0].nombre}. ¿Guardar juego completo en el historial?`)) return;
 
         showLoader(true);
         await fetch(API_URL, {
@@ -276,7 +256,8 @@
                 fechaFin: new Date().toLocaleString(),
                 ganador: res[0].nombre,
                 perdedores: res.slice(1).map(r => r.nombre),
-                puntajeGanador: res[0].score
+                puntajeGanador: res[0].score,
+                tablaCompleta: tablaCompleta // Enviamos el JSON
             })
         });
         seleccionados = [];
@@ -286,19 +267,48 @@
     function renderHistory() {
         const container = document.getElementById('historyList');
         if (historial.length === 0) return;
-        container.innerHTML = historial.map(h => `
-            <div class="history-item">
-                <div style="display:flex; justify-content:space-between; color: var(--success);">
-                    <strong>🏆 ${h.ganador}</strong>
-                    <span>${h.puntaje} pts</span>
+
+        container.innerHTML = historial.map(h => {
+            const sumPuntos = h.detalles ? Object.values(h.detalles.puntos).reduce((acc, curr) => acc + curr.reduce((a, b) => a + b, 0), 0) : 1;
+            const winPct = h.detalles ? Math.round((h.puntaje / sumPuntos) * 100) : 0;
+
+            let miniTable = '';
+            if(h.detalles) {
+                miniTable = `<div class="table-wrapper"><table class="mini-table"><thead><tr><th>Ronda</th>`;
+                h.detalles.jugadores.forEach(j => {
+                    miniTable += `<th class="${j === h.ganador ? 'win-col' : ''}">${j.split(' ')[1] || j}</th>`;
+                });
+                miniTable += `</tr></thead><tbody>`;
+                
+                h.detalles.rondas.forEach((r, ri) => {
+                    miniTable += `<tr><td>${r}</td>`;
+                    h.detalles.jugadores.forEach(j => {
+                        miniTable += `<td class="${j === h.ganador ? 'win-col' : ''}">${h.detalles.puntos[j][ri]}</td>`;
+                    });
+                    miniTable += `</tr>`;
+                });
+                
+                miniTable += `<tr style="font-weight:bold; color:var(--text);"><td>TOTAL</td>`;
+                h.detalles.jugadores.forEach(j => {
+                    const totalJ = h.detalles.puntos[j].reduce((a,b) => a+b, 0);
+                    miniTable += `<td class="${j === h.ganador ? 'win-col' : ''}">${totalJ}</td>`;
+                });
+                miniTable += `</tr></tbody></table></div>`;
+            }
+
+            return `
+                <div class="history-card ${h.ganador ? 'winner-highlight' : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="color:var(--success); font-size:1rem;">🏆 ${h.ganador}</strong>
+                        <span style="background:var(--accent-glow); color:var(--accent); padding:2px 8px; border-radius:5px; font-size:0.7rem;">Dominio: ${100 - winPct}%</span>
+                    </div>
+                    <div style="font-size: 0.65rem; color: var(--text-dim); margin: 5px 0;">
+                        ⏱ ${h.duracion} | ${h.fin}
+                    </div>
+                    ${miniTable}
                 </div>
-                <div style="display:flex; justify-content:space-between; font-size: 0.7rem; color: var(--text-dim); margin: 4px 0;">
-                    <span>🕒 Duración: <b>${h.duracion}</b></span>
-                    <span>${h.fin.split(',')[0]}</span>
-                </div>
-                <div style="font-size: 0.75rem; opacity: 0.8;">Perdedores: ${h.perdedores}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function renderStats() {
@@ -309,28 +319,16 @@
             data: {
                 labels: jugadores.map(j => j.nombre),
                 datasets: [
-                    { label: 'Ganados', data: jugadores.map(j => j.ganados), backgroundColor: '#10b981' },
-                    { label: 'Perdidos', data: jugadores.map(j => j.perdidos), backgroundColor: '#f43f5e' }
+                    { label: 'Wins', data: jugadores.map(j => j.ganados), backgroundColor: '#10b981' },
+                    { label: 'Losses', data: jugadores.map(j => j.perdidos), backgroundColor: '#f43f5e' }
                 ]
             },
-            options: { maintainAspectRatio: false, scales: { y: { stacked: true }, x: { stacked: true } } }
+            options: { maintainAspectRatio: false, scales: { y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { stacked: true, grid: { display: false } } } }
         });
     }
 
-    function startEdit(n) { 
-        editingOldName = n; 
-        document.getElementById('playerName').value = n.split(' ')[1] || n; 
-        document.getElementById('playerActionTitle').innerText = "Editando...";
-        document.getElementById('cancelEditBtn').style.display = "block";
-    }
-
-    function resetPlayerForm() { 
-        editingOldName = null; 
-        document.getElementById('playerName').value = ""; 
-        document.getElementById('playerActionTitle').innerText = "Gestión de Jugadores";
-        document.getElementById('cancelEditBtn').style.display = "none";
-    }
-
+    function startEdit(n) { editingOldName = n; document.getElementById('playerName').value = n.split(' ')[1] || n; document.getElementById('playerActionTitle').innerText = "Editando..."; document.getElementById('cancelEditBtn').style.display = "block"; window.scrollTo({ top: 300, behavior: 'smooth' }); }
+    function resetPlayerForm() { editingOldName = null; document.getElementById('playerName').value = ""; document.getElementById('playerActionTitle').innerText = "Gestión de Jugadores"; document.getElementById('cancelEditBtn').style.display = "none"; }
     function showLoader(s) { document.getElementById('globalLoader').style.display = s ? 'flex' : 'none'; }
 </script>
 </body>
