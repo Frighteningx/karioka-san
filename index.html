@@ -3,130 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • v8.0 High Performance</title>
+    <title>Karioka Pro • v9.0 Stealth Sync</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #020617; --card: #0f172a; --accent: #22c55e; --sky: #38bdf8; --text: #f8fafc; --danger: #ef4444; --border: rgba(255,255,255,0.06); }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 10px; }
-        .container { max-width: 600px; margin: 0 auto; }
+        :root { --bg: #020617; --card: #0f172a; --accent: #22c55e; --sky: #38bdf8; --text: #f8fafc; --danger: #ef4444; --border: rgba(255,255,255,0.08); }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        .container { max-width: 500px; margin: 0 auto; }
         
-        /* Dashboard de Juego Online */
-        .game-mesa { background: radial-gradient(circle, #1e3a8a 0%, #0f172a 100%); border-radius: 30px; padding: 20px; border: 2px solid var(--sky); position: relative; margin: 15px 0; }
-        .turn-indicator { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--sky); color: #000; padding: 5px 20px; border-radius: 20px; font-weight: 900; font-size: 0.8rem; box-shadow: 0 0 15px var(--sky); }
+        /* Barra de Sincronización Silenciosa */
+        .sync-bar { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: transparent; z-index: 9999; }
+        .sync-progress { height: 100%; width: 0%; background: var(--sky); transition: width 0.3s; }
+        .sync-active .sync-progress { width: 100%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
+
+        /* Mesa de Juego */
+        .mesa { background: radial-gradient(circle at center, #1e3a8a 0%, #020617 100%); border-radius: 40px; padding: 25px; border: 1px solid var(--sky); position: relative; margin-top: 10px; }
+        .turn-badge { background: var(--sky); color: #000; padding: 4px 15px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); text-transform: uppercase; box-shadow: 0 0 15px var(--sky); }
         
-        .mesa-center { display: flex; justify-content: center; gap: 30px; margin: 30px 0; }
-        .card-slot { width: 70px; height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; transition: 0.3s; }
-        .deck-pile { background: linear-gradient(135deg, #334155, #1e293b); border: 2px solid var(--sky); color: var(--sky); cursor: pointer; }
-        .discard-pile { background: #fff; color: #000; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        
-        .hand-container { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; min-height: 80px; padding: 10px; }
-        .card-v { width: 50px; height: 75px; background: #fff; color: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; user-select: none; border: 2px solid transparent; }
+        .slots { display: flex; justify-content: center; gap: 40px; margin: 20px 0; }
+        .card-box { width: 65px; height: 95px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.3s; }
+        .deck { background: #1e293b; border: 2px dashed var(--sky); color: var(--sky); cursor: pointer; font-size: 0.7rem; }
+        .pozo { background: #fff; color: #000; font-size: 1.4rem; box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; }
+
+        /* Mano de Cartas */
+        .hand { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; padding: 10px; min-height: 100px; }
+        .card-v { width: 42px; height: 65px; background: #fff; color: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: 0.2s; border: 2px solid transparent; user-select: none; }
         .card-v.red { color: var(--danger); }
-        .card-v.selected { transform: translateY(-15px); border-color: var(--sky); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.4); }
+        .card-v.selected { transform: translateY(-20px); border-color: var(--sky); box-shadow: 0 15px 25px rgba(56, 189, 248, 0.4); }
+
+        /* UI de Puntajes */
+        .card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .btn { border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; margin-top: 10px; }
+        .btn-sky { background: var(--sky); color: #000; }
+        .btn-success { background: var(--accent); color: #000; }
         
-        /* UI Elements */
-        .status-bar { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--sky); margin-bottom: 10px; padding: 0 10px; }
-        .sync-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        
-        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .btn { border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-primary { background: var(--sky); color: #000; }
-        .btn-action { background: var(--accent); color: #000; margin-top: 10px; }
-        .btn-danger { background: var(--danger); color: #fff; margin-top: 10px; }
-        
-        .chip { display: inline-block; padding: 8px 15px; background: #1e293b; border-radius: 20px; margin: 4px; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; }
+        .chip { display: inline-block; padding: 6px 14px; background: #1e293b; border-radius: 20px; margin: 3px; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; }
         .chip.active { border-color: var(--sky); background: rgba(56, 189, 248, 0.1); color: var(--sky); }
         
-        .loader { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(2,6,23,0.9); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .loader-full { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(5px); }
+        .score-in { width: 45px; background: #020617; border: 1px solid #334155; color: #fff; text-align: center; border-radius: 5px; padding: 5px; font-size: 0.8rem; }
+        
+        h2 { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; margin-top: 0; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loader"><div style="text-align:center;"><p>Cargando mesa...</p></div></div>
+<div id="syncBar" class="sync-bar"><div class="sync-progress"></div></div>
+<div id="hardLoader" class="loader-full"><div style="text-align:center;"><p>Procesando...</p></div></div>
 
 <div class="container">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h1 style="font-size: 1.2rem; color: var(--sky);">Karioka PRO</h1>
-        <div id="syncIndicator" style="display:none;"><span class="sync-dot"></span><span style="font-size:0.6rem; color:var(--accent);">SINCRO</span></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h1 style="font-size: 1.1rem; color: var(--sky); margin:0;">Karioka PRO</h1>
+        <div id="logMsg" style="font-size: 0.6rem; color: var(--sky); font-style: italic;">Esperando conexión...</div>
     </div>
 
-    <div style="display:flex; gap:5px; background:#0f172a; padding:5px; border-radius:12px; margin-bottom:15px;">
-        <button onclick="switchMode('fisico')" id="mFisico" class="btn" style="flex:1; font-size:0.7rem; background:var(--sky); color:#000;">FÍSICO</button>
-        <button onclick="switchMode('online')" id="mOnline" class="btn" style="flex:1; font-size:0.7rem; background:transparent; color:var(--text);">ONLINE</button>
+    <div style="display:flex; background:#0f172a; padding:4px; border-radius:12px; margin-bottom:15px;">
+        <button onclick="switchMode('fisico')" id="mFisico" style="flex:1; border:none; padding:8px; border-radius:8px; font-weight:bold; cursor:pointer; background:var(--sky); color:#000; font-size:0.7rem;">MODO FÍSICO</button>
+        <button onclick="switchMode('online')" id="mOnline" style="flex:1; border:none; padding:8px; border-radius:8px; font-weight:bold; cursor:pointer; background:transparent; color:#fff; font-size:0.7rem;">MODO ONLINE</button>
     </div>
 
     <div id="areaOnline" style="display:none;">
-        <div id="onlineLogin" class="card">
-            <input type="text" id="salaId" placeholder="Código de Sala" style="width:100%; padding:12px; background:#020617; border:1px solid #334155; color:#fff; border-radius:10px; margin-bottom:10px;">
-            <button class="btn btn-primary" onclick="conectarSala()">Unirse a Partida</button>
+        <div id="loginOnline" class="card">
+            <input type="text" id="salaId" placeholder="ID de Sala" style="width:100%; padding:12px; background:#020617; border:1px solid #334155; color:#fff; border-radius:10px; margin-bottom:10px; outline:none;">
+            <button class="btn btn-sky" onclick="conectarSala()">Entrar a Mesa Virtual</button>
         </div>
 
-        <div id="juegoActivo" style="display:none;">
-            <div class="status-bar">
-                <span id="txtLog">Preparando mazo...</span>
-                <span id="txtFase">ROBAR</span>
-            </div>
-            
-            <div class="game-mesa">
-                <div id="indicadorTurno" class="turn-indicator">TURNO DE: --</div>
-                <div class="mesa-center">
-                    <div class="card-slot deck-pile" onclick="ejecutarAccion('robar')">MAZO</div>
-                    <div id="cardPozo" class="card-slot discard-pile" onclick="ejecutarAccion('robar_pozo')">--</div>
+        <div id="juegoOnline" style="display:none;">
+            <div class="mesa">
+                <div id="txtTurno" class="turn-badge">TURNO DE: --</div>
+                <div class="slots">
+                    <div class="card-box deck" onclick="accion('robar')">MAZO<br>ROBAR</div>
+                    <div id="pozoCard" class="card-box pozo" onclick="accion('robar_pozo')">--</div>
                 </div>
-                <div id="miMano" class="hand-container"></div>
+                <div id="mano" class="hand"></div>
             </div>
-
-            <button id="btnTirar" class="btn btn-action" style="display:none;" onclick="ejecutarAccion('tirar')">DESCARTAR SELECCIONADA</button>
-            <button class="btn btn-danger" onclick="salirSala()">Abandonar Sala</button>
+            <button id="btnDescartar" class="btn btn-success" style="display:none;" onclick="accion('tirar')">DESCARTAR CARTA</button>
+            <button class="btn" style="background:#334155; color:#fff;" onclick="location.reload()">Salir</button>
         </div>
     </div>
 
     <div id="areaFisica" class="card">
-        <h2 style="font-size:0.8rem; color:var(--accent); margin-top:0;">REGISTRO DE PUNTOS</h2>
-        <div id="chipsContainer"></div>
-        <button class="btn btn-primary" style="margin-top:15px;" onclick="iniciarFisico()">Iniciar Nueva Partida</button>
+        <h2>Ranking y Puntos</h2>
+        <div id="chipsPartida"></div>
+        <button id="btnFisicoControl" class="btn btn-sky" onclick="controlPartidaFisica()">Iniciar Nueva Partida</button>
         
-        <div id="tablaPuntos" style="display:none; margin-top:20px; overflow-x:auto;">
-             <table style="width:100%; border-collapse:collapse; font-size:0.75rem;">
-                <thead id="tHead"></thead>
-                <tbody id="tBody"></tbody>
-             </table>
+        <div id="zonaTabla" style="display:none; margin-top:20px;">
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.7rem; text-align:center;">
+                    <thead id="tHead"></thead>
+                    <tbody id="tBody"></tbody>
+                    <tfoot id="tFoot" style="font-weight:bold; color:var(--sky);"></tfoot>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec";
-    let state = { modo: 'fisico', jugadores: [], seleccionados: [], sala: null, user: "", selCard: null, polling: null };
+    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
+    
+    let st = { modo: 'fisico', sala: null, user: "", selCard: null, activo: false, ts: null, pSelected: [] };
 
-    window.onload = loadData;
+    window.onload = async () => {
+        const r = await fetch(API_URL);
+        const d = await r.json();
+        renderChips(d.jugadores);
+    };
 
-    async function loadData() {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        state.jugadores = data.jugadores;
-        renderPlayers();
-    }
-
-    function renderPlayers() {
-        const container = document.getElementById('chipsContainer');
+    function renderChips(jugadores) {
+        const container = document.getElementById('chipsPartida');
         container.innerHTML = '';
-        state.jugadores.forEach(j => {
-            const c = document.createElement('div');
-            c.className = `chip ${state.seleccionados.includes(j.nombre) ? 'active' : ''}`;
-            c.innerHTML = j.nombre;
-            c.onclick = () => {
-                if(state.seleccionados.includes(j.nombre)) state.seleccionados = state.seleccionados.filter(x => x !== j.nombre);
-                else state.seleccionados.push(j.nombre);
-                renderPlayers();
+        jugadores.forEach(j => {
+            const div = document.createElement('div');
+            div.className = `chip ${st.pSelected.includes(j.nombre) ? 'active' : ''}`;
+            div.innerHTML = j.nombre;
+            div.onclick = () => {
+                if(st.activo) return;
+                if(st.pSelected.includes(j.nombre)) st.pSelected = st.pSelected.filter(x => x !== j.nombre);
+                else st.pSelected.push(j.nombre);
+                renderChips(jugadores);
             };
-            container.appendChild(c);
+            container.appendChild(div);
         });
     }
 
     function switchMode(m) {
-        state.modo = m;
+        st.modo = m;
         document.getElementById('mFisico').style.background = m === 'fisico' ? 'var(--sky)' : 'transparent';
         document.getElementById('mOnline').style.background = m === 'online' ? 'var(--sky)' : 'transparent';
         document.getElementById('areaFisica').style.display = m === 'fisico' ? 'block' : 'none';
@@ -135,108 +138,101 @@
 
     async function conectarSala() {
         const id = document.getElementById('salaId').value;
-        const nombre = prompt("¿Cuál es tu nombre de jugador?");
+        const nombre = prompt("Tu nombre exacto:");
         if(!id || !nombre) return;
-        
-        state.user = nombre;
-        state.sala = id;
-        document.getElementById('loader').style.display = 'flex';
-        
-        await sync(true); // Sincronización inicial fuerte
-        
-        document.getElementById('onlineLogin').style.display = 'none';
-        document.getElementById('juegoActivo').style.display = 'block';
-        document.getElementById('loader').style.display = 'none';
-        
-        // Iniciar polling silencioso cada 5 segundos
-        state.polling = setInterval(() => sync(false), 5000);
+        st.sala = id; st.user = nombre;
+        document.getElementById('hardLoader').style.display = 'flex';
+        await sync();
+        document.getElementById('loginOnline').style.display = 'none';
+        document.getElementById('juegoOnline').style.display = 'block';
+        document.getElementById('hardLoader').style.display = 'none';
+        setInterval(sync, 5000); // Polling silencioso
     }
 
-    async function sync(isFirst) {
-        if(!isFirst) document.getElementById('syncIndicator').style.display = 'block';
-        
+    async function sync() {
+        document.getElementById('syncBar').classList.add('sync-active');
         try {
-            const res = await fetch(`${API_URL}?salaId=${state.sala}`);
-            const data = await res.json();
+            const r = await fetch(`${API_URL}?salaId=${st.sala}`);
+            const d = await r.json();
+            if(d.error) return location.reload();
             
-            if(data.error) return salirSala();
+            const g = d.game;
+            const miTurno = g.jugadores[g.turno] === st.user;
             
-            const g = data.game;
-            const esMiTurno = g.jugadores[g.turno] === state.user;
+            document.getElementById('txtTurno').innerText = `Turno de: ${g.jugadores[g.turno]} ${miTurno ? '(TÚ)' : ''}`;
+            document.getElementById('logMsg').innerText = g.log;
             
-            // Actualizar UI
-            document.getElementById('indicadorTurno').innerText = `TURNO DE: ${g.jugadores[g.turno]} ${esMiTurno ? '(TÚ)' : ''}`;
-            document.getElementById('txtLog').innerText = g.log;
-            document.getElementById('txtFase').innerText = g.fase.toUpperCase();
-            
-            const pozo = document.getElementById('cardPozo');
+            const pozo = document.getElementById('pozoCard');
             pozo.innerText = g.pozo[0];
-            pozo.className = (g.pozo[0].includes('♥') || g.pozo[0].includes('♦')) ? 'card-slot discard-pile red' : 'card-slot discard-pile';
-            
-            // Render Mano
-            const manoContainer = document.getElementById('miMano');
+            pozo.style.color = (g.pozo[0].includes('♥')||g.pozo[0].includes('♦')) ? 'var(--danger)' : '#000';
+
+            const manoContainer = document.getElementById('mano');
             manoContainer.innerHTML = '';
-            (g.manos[state.user] || []).forEach(c => {
+            (g.manos[st.user] || []).forEach(c => {
                 const dv = document.createElement('div');
-                dv.className = `card-v ${state.selCard === c ? 'selected' : ''} ${(c.includes('♥')||c.includes('♦')) ? 'red' : ''}`;
+                dv.className = `card-v ${st.selCard === c ? 'selected' : ''} ${(c.includes('♥')||c.includes('♦')) ? 'red' : ''}`;
                 dv.innerText = c;
-                dv.onclick = () => {
-                    if(esMiTurno && g.fase === 'tirar') {
-                        state.selCard = c;
-                        renderMano(g.manos[state.user], g);
-                    }
-                };
+                dv.onclick = () => { if(miTurno && g.fase === 'tirar') { st.selCard = c; sync(); } };
                 manoContainer.appendChild(dv);
             });
-
-            document.getElementById('btnTirar').style.display = (esMiTurno && g.fase === 'tirar' && state.selCard) ? 'block' : 'none';
-
-        } catch(e) { console.error("Sync Error"); }
-        
-        document.getElementById('syncIndicator').style.display = 'none';
+            document.getElementById('btnDescartar').style.display = (miTurno && g.fase === 'tirar' && st.selCard) ? 'block' : 'none';
+        } catch(e) {}
+        setTimeout(() => document.getElementById('syncBar').classList.remove('sync-active'), 500);
     }
 
-    function renderMano(cartas, g) {
-        const esMiTurno = g.jugadores[g.turno] === state.user;
-        const manoContainer = document.getElementById('miMano');
-        manoContainer.innerHTML = '';
-        cartas.forEach(c => {
-            const dv = document.createElement('div');
-            dv.className = `card-v ${state.selCard === c ? 'selected' : ''} ${(c.includes('♥')||c.includes('♦')) ? 'red' : ''}`;
-            dv.innerText = c;
-            dv.onclick = () => {
-                if(esMiTurno && g.fase === 'tirar') {
-                    state.selCard = c;
-                    renderMano(cartas, g);
-                    document.getElementById('btnTirar').style.display = 'block';
-                }
-            };
-            manoContainer.appendChild(dv);
-        });
-    }
-
-    async function ejecutarAccion(tipo) {
-        // Optimistic UI: Si robamos, mostramos que estamos procesando
-        document.getElementById('syncIndicator').style.display = 'block';
-        
+    async function accion(tipo) {
+        document.getElementById('hardLoader').style.display = 'flex';
         await fetch(API_URL, {
             method: 'POST',
-            body: JSON.stringify({
-                accion: "accion_juego",
-                salaId: state.sala,
-                tipo: tipo,
-                user: state.user,
-                carta: state.selCard
-            }),
+            body: JSON.stringify({ accion: "accion_juego", salaId: st.sala, tipo, user: st.user, carta: st.selCard }),
             headers: {"Content-Type":"text/plain"}
         });
-        
-        state.selCard = null;
-        await sync(false);
+        st.selCard = null;
+        await sync();
+        document.getElementById('hardLoader').style.display = 'none';
     }
 
-    function salirSala() {
-        clearInterval(state.polling);
+    // Lógica Física
+    function controlPartidaFisica() {
+        if(!st.activo) {
+            if(st.pSelected.length < 2) return alert("Selecciona jugadores.");
+            st.activo = true; st.ts = Date.now();
+            document.getElementById('btnFisicoControl').innerText = "Finalizar y Guardar KPI";
+            document.getElementById('btnFisicoControl').className = "btn btn-success";
+            document.getElementById('zonaTabla').style.display = 'block';
+            renderTablaFisica();
+        } else {
+            finalizarFisico();
+        }
+    }
+
+    function renderTablaFisica() {
+        document.getElementById('tHead').innerHTML = `<tr><th>Fase</th>${st.pSelected.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
+        document.getElementById('tBody').innerHTML = RONDAS.map(r => `<tr><td style="text-align:left;">${r}</td>${st.pSelected.map(n => `<td><input type="number" class="score-in" data-p="${n}" oninput="calcFisico()"></td>`).join('')}</tr>`).join('');
+        document.getElementById('tFoot').innerHTML = `<tr><td>TOTAL</td>${st.pSelected.map(n => `<td id="tot_${n}">0</td>`).join('')}</tr>`;
+    }
+
+    function calcFisico() {
+        st.pSelected.forEach(n => {
+            let t = 0;
+            document.querySelectorAll(`[data-p="${n}"]`).forEach(i => t += (parseInt(i.value)||0));
+            document.getElementById(`tot_${n}`).innerText = t;
+        });
+    }
+
+    async function finalizarFisico() {
+        let r = st.pSelected.map(n => ({ n, s: parseInt(document.getElementById(`tot_${n}`).innerText) })).sort((a,b) => a.s - b.s);
+        if(!confirm(`¿Ganador: ${r[0].n}?`)) return;
+        document.getElementById('hardLoader').style.display = 'flex';
+        
+        let tabla = { jugadores: st.pSelected, rondas: RONDAS, puntos: {} };
+        st.pSelected.forEach(n => tabla.puntos[n] = Array.from(document.querySelectorAll(`[data-p="${n}"]`)).map(i => parseInt(i.value)||0));
+
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({
+            accion: "guardar_juego", tsInicio: st.ts, tsFin: Date.now(), fecha: new Date().toLocaleDateString(),
+            inicio: new Date(st.ts).toLocaleTimeString(), fin: new Date().toLocaleTimeString(),
+            ganador: r[0].n, perdedores: r.slice(1).map(x => x.n), puntaje: r[0].s, tabla
+        }), headers: {"Content-Type":"text/plain"} });
         location.reload();
     }
 </script>
