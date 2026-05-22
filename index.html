@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Analytics Pro • Dark UX</title>
+    <title>Karioka Analytics Pro • Dark UX Master</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
@@ -35,7 +35,7 @@
         .discard { background: #fff; color: #000; font-size: 1.3rem; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         
         /* Mano y cartas */
-        .hand { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 15px; }
+        .hand { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 15px; min-height: 80px; }
         .card-v { width: 45px; height: 68px; background: white; color: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer; transition: 0.2s; border: 2px solid transparent; font-size: 0.85rem; position: relative; }
         .card-v.red { color: var(--danger); }
         .card-v.blue { color: #1d4ed8; }
@@ -49,8 +49,9 @@
 
         /* Mesones Públicos */
         .public-mesones { background: #0f172a; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-top: 20px; }
-        .public-group { display:flex; gap: 5px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px; overflow-x: auto; margin-bottom: 5px; }
-        .mini-c { width: 30px; height: 45px; font-size: 0.6rem; border: 1px solid #334155; border-radius: 4px; display:flex; justify-content:center; align-items:center; font-weight:bold; background:#fff; }
+        .public-group { display:flex; gap: 5px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; overflow-x: auto; margin-bottom: 5px; border: 1px solid transparent; cursor: pointer; transition: 0.2s; }
+        .public-group:hover { border-color: var(--gold); }
+        .mini-c { width: 35px; height: 50px; font-size: 0.7rem; border: 1px solid #334155; border-radius: 4px; display:flex; justify-content:center; align-items:center; font-weight:bold; background:#fff; }
 
         button { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
         .chip { display: inline-block; padding: 7px 15px; background: #1e293b; color: #fff; border-radius: 20px; margin: 4px; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; font-weight: 600; }
@@ -115,11 +116,11 @@
         <div id="juegoOnline" style="display:none;">
             <div class="mesa">
                 <div id="txtTurno" class="turn-badge">TURNO: --</div>
-                <div style="text-align:center; margin-bottom:10px; font-weight:900; color:var(--gold); font-size:1rem; text-transform:uppercase;" id="txtRondaNombre">ROUNDS</div>
+                <div style="text-align:center; margin-bottom:10px; font-weight:900; color:var(--sky); font-size:1rem; text-transform:uppercase;" id="txtRondaNombre">ROUNDS</div>
                 
-                <!-- Mesones Públicos (Bajadas) -->
+                <!-- Mesones Públicos (Para ver quién se bajó y poder botar cartas) -->
                 <div id="mesonesPublicos" class="public-mesones" style="display:none;">
-                    <h3 style="font-size:0.7rem; color:var(--text-dim); margin:0 0 5px; text-align:center;">JUGADORES BAJADOS</h3>
+                    <h3 style="font-size:0.7rem; color:var(--text-dim); margin:0 0 5px; text-align:center;">JUGADORES BAJADOS (Haz clic para botar carta)</h3>
                     <div id="mesonesContainer"></div>
                 </div>
 
@@ -130,13 +131,14 @@
                 <div id="manoContainer" class="hand"></div>
             </div>
 
+            <!-- Zona de extensión no se borra gracias a la sincronización diferencial -->
             <div class="workspace" id="workspaceMesa">
                 <h3 style="font-size:0.7rem; margin:0 0 10px; color:var(--text-dim); text-align:center;">ZONA DE PREPARACIÓN DE BAJADA</h3>
                 <div id="slotsWorkspace"></div>
                 <button id="btnBajar" style="margin-top:10px; background:var(--sky); color:#000; display:none;" onclick="intentarBajarse()">VALIDAR Y BAJARSE A LA MESA</button>
             </div>
 
-            <button id="btnTirar" style="display:none; background:var(--danger); margin-top:15px;" onclick="play('tirar')">DESCARTAR SELECCIONADA Y PASAR TURNO</button>
+            <button id="btnTirar" style="display:none; background:var(--danger); color:#fff; margin-top:15px;" onclick="play('tirar')">DESCARTAR SELECCIONADA Y PASAR TURNO</button>
             <p id="logO" style="font-size:0.65rem; color:var(--text-dim); text-align:center; margin-top:10px; font-style:italic; font-weight:600;"></p>
         </div>
     </div>
@@ -252,7 +254,7 @@
         st.me = n;
         document.getElementById('setupOnline').style.display = 'none';
         document.getElementById('juegoOnline').style.display = 'block';
-        st.poll = setInterval(sync, 3500); // Polling silencioso
+        st.poll = setInterval(sync, 3500); 
         sync();
     }
 
@@ -276,14 +278,21 @@
             
             renderMesonesPublicos(g.mesones, g.bajados);
 
-            const manoN = g.manos[st.me] || [];
-            if (st.manoLocal.length + obtenerTotalWorkspace() !== manoN.length) {
-                st.manoLocal = manoN;
-                st.workspaceCartas = [[],[],[],[]];
-            } else {
-                let idsL = [...st.manoLocal, ...st.workspaceCartas.flat()].map(c => c.id);
-                manoN.forEach(cn => { if(!idsL.includes(cn.id)) st.manoLocal.push(cn); });
-            }
+            const manoServer = g.manos[st.me] || [];
+            
+            // LÓGICA DIFERENCIAL PARA NO BORRAR EL WORKSPACE
+            const serverIds = manoServer.map(c => c.id);
+            // 1. Quitar las cartas locales que ya no existen en el servidor (ej. si descartó o botó)
+            st.manoLocal = st.manoLocal.filter(c => serverIds.includes(c.id));
+            st.workspaceCartas = st.workspaceCartas.map(g => g.filter(c => serverIds.includes(c.id)));
+            
+            // 2. Añadir las cartas nuevas del servidor a la mano (ej. robó)
+            const localIds = [...st.manoLocal.map(c=>c.id), ...st.workspaceCartas.flat().map(c=>c.id)];
+            manoServer.forEach(c => {
+                if(!localIds.includes(c.id)) {
+                    st.manoLocal.push(c); // Carta nueva entra a la mano, respetando el workspace
+                }
+            });
             
             renderHand(g.ultimaRecogidaId, miTurno, g.fase);
             renderWorkspaceSlots(miTurno, g.fase);
@@ -303,26 +312,28 @@
             if(bajadosData[player]) {
                 showSection = true;
                 const pDiv = document.createElement('div');
-                pDiv.innerHTML = `<span style="font-size:0.7rem; font-weight:bold; color:var(--sky);">${player}</span>`;
+                pDiv.innerHTML = `<span style="font-size:0.7rem; font-weight:bold; color:var(--sky);">${player} ${player === st.me ? '(Tú)' : ''}</span>`;
                 
-                const gDiv = document.createElement('div');
-                gDiv.className = 'public-group';
-                
-                (mesonesData[player] || []).forEach(grupo => {
+                (mesonesData[player] || []).forEach((grupo, gIdx) => {
+                    const gDiv = document.createElement('div');
+                    gDiv.className = 'public-group';
+                    gDiv.onclick = () => {
+                        // BOTAR CARTA SI ESTÁS BAJADO
+                        if(st.bajado && st.selC && !st.selFromWorkspace) {
+                            playBotar(player, gIdx);
+                        }
+                    };
                     grupo.forEach(c => {
                         gDiv.innerHTML += `<div class="mini-c" style="color:${c.color==='red'?'var(--danger)':(c.color==='blue'?'#1d4ed8':'#000')}">${c.txt}</div>`;
                     });
-                    gDiv.innerHTML += `<div style="width:10px;"></div>`;
+                    pDiv.appendChild(gDiv);
                 });
                 
-                pDiv.appendChild(gDiv);
                 container.appendChild(pDiv);
             }
         }
         document.getElementById('mesonesPublicos').style.display = showSection ? 'block' : 'none';
     }
-
-    function obtenerTotalWorkspace() { return st.workspaceCartas.reduce((acc, curr) => acc + current.length, 0); }
 
     function renderHand(newId, miT, fase) {
         const container = document.getElementById('manoContainer');
@@ -390,16 +401,26 @@
         renderHand(null, miT, fase); renderWorkspaceSlots(miT, fase);
     }
 
+    // Optimistic request (Sin loader)
     function playBackground(tipo) {
         fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo, user: st.me, nuevaMano: [...st.manoLocal, ...st.workspaceCartas.flat()] }), headers:{"Content-Type":"text/plain"} });
     }
 
+    async function playBotar(targetUser, targetGroup) {
+        document.getElementById('heartbeat').style.background = 'var(--gold)';
+        const res = await fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo:'botar_carta', user: st.me, cartaId: st.selC.id, targetUser, targetGroup }), headers:{"Content-Type":"text/plain"} });
+        st.selC = null; st.selIndex = null;
+        document.getElementById('heartbeat').style.background = 'var(--accent)';
+        sync();
+    }
+
+    // Optimistic UI, sin loaders congelantes
     async function play(tipo) {
         if(tipo === 'tirar' && (!st.selC || st.selFromWorkspace)) return;
         document.getElementById('heartbeat').style.background = 'var(--danger)';
         const res = await fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo, user: st.me, cartaId: st.selC ? st.selC.id : null }), headers:{"Content-Type":"text/plain"} });
         const d = await res.json();
-        if(d.error) alert(d.error); 
+        if(d.error) alert(d.error); // Mensaje si viola regla de turnos o fases (robar vs tirar)
         st.selC = null; st.selIndex = null;
         document.getElementById('heartbeat').style.background = 'var(--accent)';
         sync();
@@ -417,11 +438,10 @@
         });
 
         if (valid) {
-            alert("¡BAJADA EXITOSA!");
             fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo:'bajar_meson', user: st.me, nuevaMano: st.manoLocal, cartasBajadas: st.workspaceCartas }), headers:{"Content-Type":"text/plain"} });
             sync();
         } else {
-            alert("Bajada Inválida: Las cartas agrupadas no cumplen las reglas matemáticas del Round.");
+            alert("Bajada Inválida: Las combinaciones en la zona no cumplen la regla del Round.");
         }
     }
 
@@ -454,9 +474,9 @@
     // FISICO KPI
     function controlPartida() {
         if(!st.activo) {
-            if(st.pSelected.length < 2) return alert("Selecciona agentes");
+            if(st.pSelected.length < 2) return alert("Selecciona agentes arriba");
             st.activo = true; st.ts = Date.now();
-            document.getElementById('btnFisico').innerText = "Guardar KPI Operacional";
+            document.getElementById('btnFisico').innerText = "Guardar KPI";
             document.getElementById('zonaTabla').style.display = 'block';
             document.getElementById('tHead').innerHTML = `<tr><th>Fase</th>${st.pSelected.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
             document.getElementById('tBody').innerHTML = RONDAS.map((r) => `<tr><td style="text-align:left; font-weight:bold;">${r}</td>${st.pSelected.map(n => `<td><input type="number" class="score-in" data-p="${n}" oninput="sum()"></td>`).join('')}</tr>`).join('');
