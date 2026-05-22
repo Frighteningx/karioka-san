@@ -1,398 +1,85 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • v5.1 Fix</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --accent-glow: rgba(56, 189, 248, 0.2);
-            --text: #f1f5f9; --text-dim: #94a3b8; --danger: #f43f5e; --success: #10b981; --border: rgba(255,255,255,0.1);
-        }
-        body { margin: 0; padding: 10px; background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding-bottom: 80px; }
-        .container { max-width: 800px; margin: 0 auto; width: 100%; }
-        h1 { font-size: 2rem; text-align: center; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 25px 0; }
-        .card { background: var(--card); border-radius: 20px; padding: 24px; box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.3); border: 1px solid var(--border); margin-bottom: 24px; }
-        .mode-selector { display: flex; background: #0f172a; border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: transparent; color: var(--text-dim); cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .mode-btn.active { background: var(--accent); color: var(--bg); }
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h2 { font-size: 0.9rem; color: var(--accent); margin: 0; text-transform: uppercase; letter-spacing: 1.5px; }
-        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 10px; width: 100%; outline: none; }
-        button { background: var(--accent); color: var(--bg); border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .player-chip { display: inline-flex; align-items: center; gap: 8px; background: #1e293b; padding: 8px 15px; border-radius: 20px; cursor: pointer; border: 1px solid #334155; margin: 5px; transition: 0.2s; }
-        .player-chip.active { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); font-weight: bold; }
-        .table-wrapper { overflow-x: auto; border-radius: 12px; background: #0b1120; padding: 12px; border: 1px solid var(--border); }
-        .karioka-table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        .karioka-table th, .karioka-table td { padding: 12px; text-align: center; border-bottom: 1px solid #334155; }
-        .score-input { width: 60px; text-align: center; background: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; padding: 5px; }
-        .score-input:disabled { opacity: 0.4; color: var(--accent); }
-        .history-card { background: var(--card); border-radius: 15px; padding: 18px; margin-bottom: 15px; border-left: 5px solid var(--accent); }
-        .history-winner-btn { background: transparent; color: var(--success); font-weight: 800; border: none; cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
-        .detalle-tabla { display: none; margin-top: 15px; }
-        .loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
+<style>
+    .hand-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; justify-content: center; }
+    .card-virtual {
+        width: 50px; height: 75px; background: white; border-radius: 6px;
+        color: #1e293b; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; font-weight: bold; border: 2px solid #cbd5e1;
+        cursor: pointer; transition: 0.2s; position: relative;
+    }
+    .card-virtual:hover { transform: translateY(-10px); border-color: var(--accent); }
+    .card-virtual.red { color: #f43f5e; }
+    .card-virtual.selected { border: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
+    
+    .table-center { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
+    .deck-pile { width: 60px; height: 90px; background: #334155; border: 2px dashed var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--accent); text-align: center; cursor: pointer; }
+    .discard-pile { width: 60px; height: 90px; background: white; border: 2px solid #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1e293b; }
+</style>
 
-<div id="globalLoader" class="loader">
-    <div style="text-align:center;">
-        <div style="border: 4px solid var(--accent); border-top: 4px solid transparent; width: 45px; height: 45px; border-radius: 50%; animation: spin 0.8s linear infinite; margin: auto;"></div>
-        <p style="margin-top:15px; font-weight: 600;">SINCRONIZANDO...</p>
-    </div>
-</div>
-
-<div class="container">
-    <h1>Karioka Pro</h1>
-
-    <div class="mode-selector">
-        <button id="btnLocal" class="mode-btn active" onclick="setModo('local')">MODO FÍSICO</button>
-        <button id="btnOnline" class="mode-btn" onclick="setModo('online')">MODO ONLINE</button>
+<div id="onlineGameArea" style="display:none; border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px;">
+    <h2 style="font-size: 0.8rem; color: var(--accent);">MESA DE CARTAS ONLINE</h2>
+    
+    <div class="table-center">
+        <div class="deck-pile" onclick="ejecutarAccion('robar_mazo')">MAZO<br>(Robar)</div>
+        <div id="pozoDisplay" class="discard-pile">--</div>
     </div>
 
-    <div id="panelOnline" class="card" style="display:none;">
-        <div id="setupOnline">
-            <h2 style="margin-bottom:15px;">Conexión de Sala</h2>
-            <input type="text" id="inputSalaId" placeholder="Código de Sala (ej: 9988)" style="margin-bottom:15px;">
-            <div style="display:flex; gap:10px;">
-                <button onclick="unirseASala()" style="flex:1;">Unirse a Sala</button>
-                <button onclick="crearSala()" style="background:var(--card); border:1px solid var(--accent); color:var(--accent); flex:1;">Crear Sala</button>
-            </div>
-            <p style="font-size:0.75rem; color:var(--text-dim); margin-top:10px; text-align:center;">*Para Crear Sala, selecciona los jugadores de la lista abajo primero.</p>
-        </div>
-        <div id="statusSala" style="display:none; text-align:center;">
-            <p>Conectado a Sala: <strong id="displaySalaId" style="color:var(--accent);"></strong></p>
-            <p id="labelRol" style="font-size:0.8rem; opacity:0.7; margin: 10px 0;"></p>
-            <button onclick="salirSala()" style="background:var(--danger); color:white; padding:8px 15px;">Abandonar Sala</button>
-        </div>
+    <p style="font-size: 0.7rem; color: var(--text-dim); text-align: center;">Tu Mano:</p>
+    <div id="myHand" class="hand-container"></div>
+    
+    <div id="gameActions" style="margin-top: 20px; display: none;">
+        <button onclick="ejecutarAccion('descartar')" style="background: var(--danger); width: 100%;">DESCARTAR CARTA SELECCIONADA</button>
     </div>
-
-    <div class="card">
-        <div class="header-row">
-            <h2 id="titleSeccionPartida">Tablero de Partida</h2>
-            <button id="mainGameBtn" onclick="gestionarBotonPartida()">Iniciar Nueva Partida</button>
-        </div>
-        <div id="chipsContainer" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;"></div>
-        
-        <div id="gameZone" style="display:none; margin-top:20px;">
-            <div class="table-wrapper">
-                <table class="karioka-table">
-                    <thead><tr id="tableHeader"></tr></thead>
-                    <tbody id="tableBody"></tbody>
-                    <tfoot><tr id="tableFooter" style="color:var(--accent); font-weight:800; font-size:1.1rem; background: rgba(56, 189, 248, 0.05);"></tr></tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="header-row">
-            <h2 id="playerActionTitle">Perfiles Registrados</h2>
-            <button id="cancelEditBtn" style="display:none; background:var(--danger);" onclick="resetPlayerForm()">X</button>
-        </div>
-        <div class="player-form-row" style="display:flex; gap:10px; position:relative;">
-            <div id="currentEmoji" style="font-size:1.5rem; background:#334155; padding:10px; border-radius:10px; cursor:pointer; min-width:50px; text-align:center;" onclick="toggleEmojiWindow()">👤</div>
-            <input type="text" id="playerName" placeholder="Nuevo Jugador...">
-            <button id="playerMainBtn" onclick="savePlayer()">Añadir</button>
-            
-            <div id="emojiWindow" style="display:none; grid-template-columns: repeat(5, 1fr); gap:10px; position:absolute; bottom:60px; left:0; background:var(--card); padding:15px; border-radius:15px; border:1px solid var(--accent); z-index:100; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">
-                <div class="emoji-option" onclick="selectEmoji('👤')">👤</div><div class="emoji-option" onclick="selectEmoji('🦁')">🦁</div>
-                <div class="emoji-option" onclick="selectEmoji('🦄')">🦄</div><div class="emoji-option" onclick="selectEmoji('🥷')">🥷</div>
-                <div class="emoji-option" onclick="selectEmoji('🤖')">🤖</div><div class="emoji-option" onclick="selectEmoji('🔥')">🔥</div>
-                <div class="emoji-option" onclick="selectEmoji('💎')">💎</div><div class="emoji-option" onclick="selectEmoji('🦊')">🦊</div>
-                <div class="emoji-option" onclick="selectEmoji('🍀')">🍀</div><div class="emoji-option" onclick="selectEmoji('🐯')">🐯</div>
-            </div>
-        </div>
-        <div id="registeredPlayersList" style="margin-top:20px; display:flex; gap:8px; flex-wrap:wrap;"></div>
-    </div>
-
-    <div class="card">
-        <h2>Ranking Global</h2>
-        <div style="height: 250px;"><canvas id="statsChart"></canvas></div>
-    </div>
-
-    <details>
-        <summary>Historial de Juegos Completos</summary>
-        <div class="history-content" id="historyList"></div>
-    </details>
 </div>
 
 <script>
-    // URL DE TU WEB APP - RECUERDA ACTUALIZARLA
-    const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec"; 
-    
-    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
-    
-    let jugadores = [], historial = [], seleccionados = [], currentEmoji = '👤', editingOldName = null, chart = null;
-    let fechaInicioTS = null, juegoActivo = false, modo = 'local';
-    
-    // Variables Online
-    let salaId = null, esHost = false, intervalSync = null;
+    let miMano = [];
+    let cartaSeleccionada = null;
+    let miNombreOnline = ""; // Debes pedir el nombre al entrar a la sala
 
-    window.onload = loadData;
+    // Esta función debe llamarse dentro del syncOnline()
+    function updateGameUI(state) {
+        // Actualizar Pozo
+        const pozoEl = document.getElementById('pozoDisplay');
+        pozoEl.innerText = state.pozo[0];
+        pozoEl.className = (state.pozo[0].includes('♥') || state.pozo[0].includes('♦')) ? 'discard-pile red' : 'discard-pile';
 
-    function setModo(m) {
-        if(juegoActivo) return alert("Finaliza la partida antes de cambiar de modo.");
-        modo = m;
-        document.getElementById('btnLocal').classList.toggle('active', m === 'local');
-        document.getElementById('btnOnline').classList.toggle('active', m === 'online');
-        document.getElementById('panelOnline').style.display = m === 'online' ? 'block' : 'none';
-        if(m === 'local') salirSala();
-        renderPlayers();
-    }
-
-    async function loadData() {
-        showLoader(true);
-        try {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            jugadores = data.jugadores || [];
-            historial = data.historial || [];
-            renderPlayers();
-            renderStats();
-            renderHistory();
-        } catch (e) { alert("Error de conexión con la base de datos."); }
-        showLoader(false);
-    }
-
-    function renderPlayers() {
-        const chips = document.getElementById('chipsContainer');
-        const list = document.getElementById('registeredPlayersList');
-        chips.innerHTML = ''; list.innerHTML = '';
-
-        jugadores.forEach(j => {
-            // Chips para selección de partida
-            const chip = document.createElement('div');
-            chip.className = `player-chip ${seleccionados.includes(j.nombre) ? 'active' : ''}`;
-            chip.innerHTML = j.nombre;
-            chip.onclick = () => {
-                if(juegoActivo) return alert("No puedes cambiar jugadores durante el juego.");
-                togglePlayer(j.nombre);
+        // Actualizar Mi Mano
+        miMano = state.manos[miNombreOnline] || [];
+        const handEl = document.getElementById('myHand');
+        handEl.innerHTML = '';
+        
+        miMano.forEach(c => {
+            const div = document.createElement('div');
+            const isRed = c.includes('♥') || c.includes('♦');
+            div.className = `card-virtual ${isRed ? 'red' : ''} ${cartaSeleccionada === c ? 'selected' : ''}`;
+            div.innerText = c;
+            div.onclick = () => {
+                cartaSeleccionada = c;
+                document.getElementById('gameActions').style.display = (state.fase === 'descartar' && state.jugadores[state.turnoIdx] === miNombreOnline) ? 'block' : 'none';
+                updateGameUI(state); // Refrescar para mostrar selección
             };
-            chips.appendChild(chip);
-
-            // Lista para edición de perfiles
-            const item = document.createElement('div');
-            item.className = 'player-chip';
-            item.innerHTML = `${j.nombre} <span onclick="startEdit('${j.nombre}')" style="cursor:pointer; opacity:0.6;">✏️</span>`;
-            list.appendChild(item);
+            handEl.appendChild(div);
         });
+
+        // Mostrar u ocultar zona de juego
+        document.getElementById('onlineGameArea').style.display = 'block';
     }
 
-    function togglePlayer(name) {
-        if (seleccionados.includes(name)) seleccionados = seleccionados.filter(n => n !== name);
-        else seleccionados.push(name);
-        renderPlayers();
-    }
-
-    // GESTIÓN DE SALAS ONLINE
-    async function crearSala() {
-        if(seleccionados.length < 2) return alert("Selecciona al menos 2 jugadores (chips) antes de crear la sala.");
-        const id = document.getElementById('inputSalaId').value.trim();
-        if(!id) return alert("Escribe un ID para tu sala.");
-        
+    async function ejecutarAccion(tipo) {
+        if(modo !== 'online') return;
         showLoader(true);
-        salaId = id;
-        esHost = true;
-        
-        let puntos = {};
-        seleccionados.forEach(n => puntos[n] = Array(RONDAS.length).fill(0));
-
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ accion: "crear_sala", salaId: id, host: "Tú", jugadores: seleccionados, puntos: puntos }),
-            headers: { "Content-Type": "text/plain;charset=utf-8" }
-        });
-        
-        setupUIsala();
-        iniciarPartida();
-        showLoader(false);
-    }
-
-    async function unirseASala() {
-        const id = document.getElementById('inputSalaId').value.trim();
-        if(!id) return alert("Escribe el ID de la sala.");
-        
-        showLoader(true);
-        const res = await fetch(`${API_URL}?salaId=${id}`);
-        const data = await res.json();
-        
-        if(data.error) {
-            alert(data.error);
-        } else {
-            salaId = id;
-            esHost = false;
-            seleccionados = data.jugadores;
-            setupUIsala();
-            juegoActivo = true;
-            document.getElementById('gameZone').style.display = 'block';
-            updateGameTable(data.puntos);
-            intervalSync = setInterval(syncOnline, 15000); 
-        }
-        showLoader(false);
-    }
-
-    async function syncOnline() {
-        const res = await fetch(`${API_URL}?salaId=${salaId}`);
-        const data = await res.json();
-        if(!data.error) updateGameTable(data.puntos);
-    }
-
-    function setupUIsala() {
-        document.getElementById('setupOnline').style.display = 'none';
-        document.getElementById('statusSala').style.display = 'block';
-        document.getElementById('displaySalaId').innerText = salaId;
-        document.getElementById('labelRol').innerText = esHost ? "Eres el HOST (Tú anotas los puntos)" : "Eres ESPECTADOR (Los puntos se cargan solos)";
-    }
-
-    function salirSala() {
-        clearInterval(intervalSync);
-        salaId = null;
-        esHost = false;
-        juegoActivo = false;
-        document.getElementById('setupOnline').style.display = 'block';
-        document.getElementById('statusSala').style.display = 'none';
-        document.getElementById('gameZone').style.display = 'none';
-        seleccionados = [];
-        renderPlayers();
-    }
-
-    // FLUJO DE PARTIDA
-    function gestionarBotonPartida() {
-        if (!juegoActivo) {
-            if (seleccionados.length < 2) return alert("Selecciona jugadores primero.");
-            iniciarPartida();
-        } else {
-            finalizarJuego();
-        }
-    }
-
-    function iniciarPartida() {
-        juegoActivo = true;
-        fechaInicioTS = Date.now();
-        document.getElementById('mainGameBtn').innerText = "Finalizar y Guardar";
-        document.getElementById('mainGameBtn').style.background = "var(--success)";
-        document.getElementById('gameZone').style.display = 'block';
-        updateGameTable();
-    }
-
-    function updateGameTable(puntosCargados = null) {
-        document.getElementById('tableHeader').innerHTML = '<th>Fase</th>' + seleccionados.map(n => `<th>${n.split(' ')[1] || n}</th>`).join('');
-        document.getElementById('tableBody').innerHTML = RONDAS.map((r, ri) => `
-            <tr>
-                <td style="text-align:left; font-size:0.8rem; font-weight:600;">${r}</td>
-                ${seleccionados.map(n => `
-                    <td><input type="number" class="score-input" data-player="${n}" value="${puntosCargados ? puntosCargados[n][ri] : 0}" ${(!esHost && modo==='online') ? 'disabled' : ''} oninput="calcTotal()"></td>
-                `).join('')}
-            </tr>`).join('');
-        document.getElementById('tableFooter').innerHTML = '<td>TOTAL</td>' + seleccionados.map(n => `<td id="total_${n}">0</td>`).join('');
-        calcTotal(false);
-    }
-
-    function calcTotal(subirOnline = true) {
-        let currentPuntos = {};
-        seleccionados.forEach(n => {
-            let t = 0;
-            currentPuntos[n] = [];
-            document.querySelectorAll(`.score-input[data-player="${n}"]`).forEach(i => {
-                let val = parseInt(i.value) || 0;
-                t += val;
-                currentPuntos[n].push(val);
-            });
-            document.getElementById(`total_${n}`).innerText = t;
-        });
-
-        if(subirOnline && esHost && modo === 'online') {
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ accion: "actualizar_sala", salaId: salaId, puntos: currentPuntos }),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            });
-        }
-    }
-
-    async function savePlayer() {
-        const name = document.getElementById('playerName').value.trim();
-        if(!name) return;
-        showLoader(true);
-        const full = currentEmoji + " " + name;
-        const payload = editingOldName ? { accion: "editar_jugador", nombreViejo: editingOldName, nombreNuevo: full } : { accion: "nuevo_jugador", nombre: full };
-        
-        await fetch(API_URL, { 
-            method: 'POST', 
-            body: JSON.stringify(payload),
-            headers: { "Content-Type": "text/plain;charset=utf-8" }
-        });
-        resetPlayerForm();
-        await loadData();
-        showLoader(false);
-    }
-
-    async function finalizarJuego() {
-        let res = seleccionados.map(n => ({ nombre: n, score: parseInt(document.getElementById(`total_${n}`).innerText) })).sort((a,b) => a.score - b.score);
-        if(!confirm(`Ganador: ${res[0].nombre}. ¿Guardar juego?`)) return;
-
-        showLoader(true);
-        const tsFin = Date.now();
-        const dFin = new Date(tsFin);
-        const dInicio = new Date(fechaInicioTS);
-
-        let tablaCompleta = { rondas: RONDAS, jugadores: seleccionados, puntos: {} };
-        seleccionados.forEach(n => {
-            tablaCompleta.puntos[n] = [];
-            document.querySelectorAll(`.score-input[data-player="${n}"]`).forEach(input => tablaCompleta.puntos[n].push(parseInt(input.value) || 0));
-        });
-
         await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
-                accion: "guardar_juego",
-                tsInicio: fechaInicioTS, tsFin: tsFin,
-                fechaStr: dFin.toLocaleDateString(),
-                horaInicioStr: dInicio.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                horaFinStr: dFin.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                ganador: res[0].nombre, perdedores: res.slice(1).map(r => r.nombre),
-                puntajeGanador: res[0].score, tablaCompleta: tablaCompleta 
-            }),
-            headers: { "Content-Type": "text/plain;charset=utf-8" }
+                accion: "accion_juego",
+                salaId: salaId,
+                tipo: tipo,
+                usuario: miNombreOnline,
+                carta: cartaSeleccionada
+            })
         });
-
-        juegoActivo = false;
-        seleccionados = [];
-        document.getElementById('mainGameBtn').innerText = "Iniciar Nueva Partida";
-        document.getElementById('mainGameBtn').style.background = "var(--accent)";
-        document.getElementById('gameZone').style.display = 'none';
-        await loadData();
+        cartaSeleccionada = null;
+        await syncOnline();
+        showLoader(false);
     }
-
-    // UI HELPERS
-    function toggleEmojiWindow() {
-        const win = document.getElementById('emojiWindow');
-        win.style.display = (win.style.display === 'grid') ? 'none' : 'grid';
-    }
-    function selectEmoji(e) {
-        currentEmoji = e;
-        document.getElementById('currentEmoji').innerText = e;
-        document.getElementById('emojiWindow').style.display = 'none';
-    }
-    function startEdit(n) {
-        editingOldName = n;
-        document.getElementById('playerName').value = n.split(' ')[1] || n;
-        document.getElementById('playerActionTitle').innerText = "Editando Perfil";
-        document.getElementById('cancelEditBtn').style.display = "block";
-    }
-    function resetPlayerForm() {
-        editingOldName = null;
-        document.getElementById('playerName').value = "";
-        document.getElementById('playerActionTitle').innerText = "Perfiles Registrados";
-        document.getElementById('cancelEditBtn').style.display = "none";
-    }
-    function showLoader(s) { document.getElementById('globalLoader').style.display = s ? 'flex' : 'none'; }
-    function renderStats() { /* Chart code mantenido igual */ }
-    function renderHistory() { /* History code mantenido igual */ }
 </script>
-</body>
-</html>
