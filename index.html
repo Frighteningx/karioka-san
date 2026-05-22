@@ -3,447 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Stats & Tracker</title>
+    <title>Karioka Pro • Dark Mode</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #4caf50;
-            --primary-light: #e8f5e9;
-            --primary-dark: #2e7d32;
-            --text-dark: #1b5e20;
-            --text-light: #ffffff;
-            --bg-gray: #f5f5f5;
-        }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --danger: #f43f5e;
+            --success: #10b981;
         }
 
         body {
             margin: 0;
-            padding: 20px;
-            background-color: var(--bg-gray);
-            color: var(--text-dark);
+            padding: 10px;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 50px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
-            background: white;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            text-align: center;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
         }
 
-        h1, h2, h3 {
-            text-align: center;
-            color: var(--primary-dark);
-            margin-top: 10px;
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        .section {
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: var(--primary-light);
-            border-radius: 8px;
-            border-left: 5px solid var(--primary);
-        }
+        h2 { font-size: 1.2rem; color: var(--accent); margin: 0; }
 
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        /* Estilos para la tabla de rondas */
-        .karioka-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background-color: #fff;
-        }
-        
-        .karioka-table th, .karioka-table td {
-            border: 1px solid #c8e6c9;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .karioka-table th {
-            background-color: var(--primary);
+        input {
+            background: #0f172a;
+            border: 1px solid #334155;
             color: white;
-            font-weight: bold;
-        }
-
-        .karioka-table td input[type="number"] {
-            margin: 0;
-            padding: 6px;
+            padding: 12px;
+            border-radius: 8px;
             width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-            border: 1px solid #e0e0e0;
+            font-size: 1rem;
+            outline: none;
         }
 
-        .karioka-table tfoot th {
-            background-color: var(--primary-dark);
-            font-size: 18px;
-        }
-
-        .karioka-table td strong {
-            font-size: 13px;
-            color: var(--primary-dark);
-        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
         button {
-            background-color: var(--primary);
-            color: var(--text-light);
-            padding: 12px 15px;
+            background: var(--accent);
+            color: var(--bg);
             border: none;
-            border-radius: 4px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
             cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            font-size: 16px;
-            transition: background-color 0.3s;
-            margin-top: 5px;
+            transition: all 0.2s;
         }
 
-        button:hover {
-            background-color: var(--primary-dark);
-        }
+        button:active { transform: scale(0.98); }
 
-        .player-list {
-            display: flex;
-            flex-wrap: wrap;
+        /* Estilo Tabla Karioka */
+        .table-wrapper { overflow-x: auto; margin-top: 15px; }
+        .karioka-table { width: 100%; border-collapse: collapse; }
+        .karioka-table th { padding: 12px; font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; }
+        .karioka-table td { padding: 8px; border-bottom: 1px solid #334155; }
+        .ronda-name { text-align: left; font-size: 0.9rem; font-weight: 600; width: 150px; }
+        .score-input { width: 60px !important; text-align: center; padding: 5px !important; }
+
+        /* Emoji Picker */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
             gap: 10px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            justify-content: center;
+            margin: 10px 0;
         }
+        .emoji-btn {
+            background: #334155;
+            font-size: 1.5rem;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .emoji-btn.selected { border: 2px solid var(--accent); background: var(--accent-glow); }
 
-        .player-badge {
-            background: var(--primary-dark);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 14px;
-            font-weight: bold;
+        .player-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #334155;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid transparent;
         }
+        .player-chip.active { border-color: var(--accent); background: var(--accent-glow); }
 
-        .chart-container {
-            position: relative;
-            height: 320px;
-            width: 100%;
-            margin-top: 20px;
-        }
+        .btn-edit { font-size: 0.7rem; padding: 4px 8px; background: transparent; color: var(--text-dim); border: 1px solid var(--text-dim); }
 
         .loader {
-            text-align: center;
-            font-style: italic;
-            color: var(--primary-dark);
-            font-weight: bold;
-            padding: 10px;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
             display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
         }
-        
-        .btn-select {
-            background-color: #ffffff;
-            color: var(--primary-dark);
-            border: 2px solid var(--primary);
-            width: auto;
-            padding: 6px 12px;
-            font-size: 14px;
-        }
-        .btn-select:hover {
-            background-color: var(--primary);
-            color: white;
-        }
+
+        .total-row { font-weight: 900; color: var(--accent); font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
+<div id="globalLoader" class="loader">
+    <div style="text-align:center;">
+        <div style="border: 4px solid var(--accent); border-top: 4px solid transparent; width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite; margin: auto;"></div>
+        <p>Sincronizando la nube...</p>
+    </div>
+</div>
+
 <div class="container">
-    <h1>Karioka Tracker 🃏</h1>
-    
-    <!-- Sección de Estadísticas -->
-    <div class="section">
-        <h2>Métricas y Gráficos Históricos</h2>
-        <button onclick="cargarEstadisticas()">Sincronizar con Google Sheets</button>
-        <div id="loading-stats" class="loader">Sincronizando datos en línea...</div>
-        <div class="chart-container">
+    <h1>Karioka Pro Tracker</h1>
+
+    <div class="card">
+        <div class="header-row">
+            <h2>Juego Actual</h2>
+            <button onclick="finalizarJuego()" style="background: var(--success); color: white;">Finalizar</button>
+        </div>
+        <p style="color: var(--text-dim); font-size: 0.9rem;">Toca los jugadores para incluirlos en la partida:</p>
+        <div id="chipsContainer" class="player-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;"></div>
+        
+        <div id="gameZone" style="display:none;">
+            <div class="table-wrapper">
+                <table class="karioka-table">
+                    <thead><tr id="tableHeader"></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                    <tfoot><tr id="tableFooter" class="total-row"></tr></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="header-row">
+            <h2 id="playerActionTitle">Nuevo Jugador</h2>
+            <button id="cancelEditBtn" style="display:none; background: var(--danger);" onclick="resetPlayerForm()">Cancelar</button>
+        </div>
+        <div class="emoji-grid">
+            <div class="emoji-btn" onclick="selectEmoji('👤')">👤</div>
+            <div class="emoji-btn" onclick="selectEmoji('🤴')">🤴</div>
+            <div class="emoji-btn" onclick="selectEmoji('🥷')">🥷</div>
+            <div class="emoji-btn" onclick="selectEmoji('🤡')">🤡</div>
+            <div class="emoji-btn" onclick="selectEmoji('👽')">👽</div>
+            <div class="emoji-btn" onclick="selectEmoji('🤖')">🤖</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="playerName" placeholder="Nombre...">
+            <button id="playerMainBtn" onclick="savePlayer()">Añadir</button>
+        </div>
+        
+        <div id="registeredPlayersList" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Estadísticas Globales</h2>
+        <div style="height: 300px; margin-top:20px;">
             <canvas id="statsChart"></canvas>
         </div>
     </div>
-
-    <!-- Sección de Agregar Jugador -->
-    <div class="section">
-        <h2>Gestión de Jugadores</h2>
-        <input type="text" id="nuevoJugador" placeholder="Nombre del nuevo jugador...">
-        <button onclick="agregarJugador()">Registrar en la Base de Datos</button>
-        <div id="loading-add" class="loader">Guardando en la nube...</div>
-        <p style="text-align:center;"><strong>Jugadores registrados (Haz clic para sumar a la partida actual):</strong></p>
-        <div class="player-list" id="listaJugadoresDisponibles"></div>
-    </div>
-
-    <!-- Sección de Juego Actual -->
-    <div class="section">
-        <h2>Partida en Curso</h2>
-        <div class="player-list" id="jugadoresPartida"></div>
-        
-        <div id="zonaPuntuacion" style="display:none;">
-            <h3>Registro de Rondas</h3>
-            <p style="text-align:center; font-size: 14px;">Ingresa el puntaje de cada jugador por ronda. El total se calculará automáticamente.</p>
-            
-            <div id="contenedorTabla"></div>
-            
-            <br>
-            <button onclick="finalizarJuego()" style="background-color: var(--primary-dark); margin-top: 15px;">Finalizar Juego y Declarar Ganador</button>
-            <div id="loading-game" class="loader">Procesando resultados y actualizando tablas...</div>
-        </div>
-    </div>
-
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec";
+    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real", "Escala Color"];
     
-    // Lista oficial de rondas extraída del requerimiento
-    const RONDAS_KARIOKA = [
-        "2 TRIOS", "1 TRÍO 1 ESCALA", "2 ESCALAS", "3 TRIOS", 
-        "2 TRÍOS 1 ESCALA", "1 TRÍO 2 ESCALAS", "3 ESCALAS", 
-        "4 TRIOS", "ESCALA SUCIA", "ESCALA REAL", "ESCALA COLOR"
-    ];
+    let jugadores = [];
+    let seleccionados = [];
+    let selectedEmoji = '👤';
+    let editingOldName = null;
+    let chart = null;
 
-    let jugadoresGlobales = [];
-    let jugadoresSeleccionados = [];
-    let chartInstance = null;
+    window.onload = loadData;
 
-    window.onload = () => {
-        cargarEstadisticas();
-    };
+    function selectEmoji(e) {
+        selectedEmoji = e;
+        document.querySelectorAll('.emoji-btn').forEach(b => {
+            b.classList.toggle('selected', b.innerText === e);
+        });
+    }
 
-    async function cargarEstadisticas() {
-        document.getElementById('loading-stats').style.display = 'block';
+    async function loadData() {
+        showLoader(true);
         try {
-            const response = await fetch(API_URL);
-            const data = await response.json();
-            
-            if(data.error) {
-                alert("Error devuelto por el servidor: " + data.error);
-            } else {
-                jugadoresGlobales = data;
-                renderizarGrafico();
-                renderizarJugadoresDisponibles();
-            }
-        } catch (error) {
-            console.error("Error cargando datos:", error);
-            alert("No se pudo conectar a Google Sheets.");
-        }
-        document.getElementById('loading-stats').style.display = 'none';
+            const res = await fetch(API_URL);
+            jugadores = await res.json();
+            renderPlayers();
+            renderStats();
+        } catch (e) { alert("Error de conexión"); }
+        showLoader(false);
     }
 
-    async function agregarJugador() {
-        const nombre = document.getElementById('nuevoJugador').value.trim();
-        if (!nombre) return alert("Por favor, ingresa un nombre válido.");
-        
-        document.getElementById('loading-add').style.display = 'block';
-        
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ accion: "nuevo_jugador", nombre: nombre }),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            });
-            document.getElementById('nuevoJugador').value = '';
-            await cargarEstadisticas(); 
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Error al intentar guardar el jugador.");
-        }
-        document.getElementById('loading-add').style.display = 'none';
+    function renderPlayers() {
+        const list = document.getElementById('registeredPlayersList');
+        const chips = document.getElementById('chipsContainer');
+        list.innerHTML = '';
+        chips.innerHTML = '';
+
+        jugadores.forEach(j => {
+            // Chips para juego
+            const chip = document.createElement('div');
+            chip.className = `player-chip ${seleccionados.includes(j.nombre) ? 'active' : ''}`;
+            chip.innerHTML = j.nombre;
+            chip.onclick = () => togglePlayer(j.nombre);
+            chips.appendChild(chip);
+
+            // Lista para editar
+            const editRow = document.createElement('div');
+            editRow.className = 'player-chip';
+            editRow.style.cursor = 'default';
+            editRow.innerHTML = `${j.nombre} <button class="btn-edit" onclick="startEdit('${j.nombre}')">Edit</button>`;
+            list.appendChild(editRow);
+        });
+        updateGameTable();
     }
 
-    function renderizarJugadoresDisponibles() {
-        const div = document.getElementById('listaJugadoresDisponibles');
-        div.innerHTML = '';
+    function togglePlayer(name) {
+        if (seleccionados.includes(name)) seleccionados = seleccionados.filter(n => n !== name);
+        else seleccionados.push(name);
+        renderPlayers();
+    }
 
-        if(jugadoresGlobales.length === 0) {
-            div.innerHTML = "<p style='color:#777; font-style:italic;'>No hay jugadores registrados todavía.</p>";
-            return;
-        }
+    function updateGameTable() {
+        const zone = document.getElementById('gameZone');
+        const head = document.getElementById('tableHeader');
+        const body = document.getElementById('tableBody');
+        const foot = document.getElementById('tableFooter');
 
-        jugadoresGlobales.forEach(j => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-select';
-            btn.textContent = `+ ${j.nombre}`;
-            btn.onclick = () => toggleJugadorPartida(j.nombre);
-            div.appendChild(btn);
+        if (seleccionados.length === 0) { zone.style.display = 'none'; return; }
+        zone.style.display = 'block';
+
+        head.innerHTML = '<th>Ronda</th>' + seleccionados.map(n => `<th>${n.split(' ')[0]}</th>`).join('');
+        
+        body.innerHTML = RONDAS.map(r => `
+            <tr>
+                <td class="ronda-name">${r}</td>
+                ${seleccionados.map(n => `<td><input type="number" class="score-input" data-player="${n}" oninput="calcTotal()"></td>`).join('')}
+            </tr>
+        `).join('');
+
+        foot.innerHTML = '<td>TOTAL</td>' + seleccionados.map(n => `<td id="total_${n}">0</td>`).join('');
+    }
+
+    function calcTotal() {
+        seleccionados.forEach(n => {
+            let t = 0;
+            document.querySelectorAll(`.score-input[data-player="${n}"]`).forEach(i => t += (parseInt(i.value) || 0));
+            document.getElementById(`total_${n}`).innerText = t;
         });
     }
 
-    function toggleJugadorPartida(nombre) {
-        if (!jugadoresSeleccionados.includes(nombre)) {
-            jugadoresSeleccionados.push(nombre);
-        } else {
-            // Permitir deseleccionar si se equivocó
-            jugadoresSeleccionados = jugadoresSeleccionados.filter(j => j !== nombre);
-        }
-        actualizarUIJuego();
+    function startEdit(fullName) {
+        editingOldName = fullName;
+        const emoji = fullName.substring(0, 2);
+        const name = fullName.substring(2).trim();
+        document.getElementById('playerName').value = name;
+        selectEmoji(emoji);
+        document.getElementById('playerActionTitle').innerText = "Editando Jugador";
+        document.getElementById('playerMainBtn').innerText = "Actualizar";
+        document.getElementById('cancelEditBtn').style.display = "block";
     }
 
-    function actualizarUIJuego() {
-        const divPartida = document.getElementById('jugadoresPartida');
-        const zonaPuntuacion = document.getElementById('zonaPuntuacion');
-        const contenedorTabla = document.getElementById('contenedorTabla');
-        
-        divPartida.innerHTML = '';
-        contenedorTabla.innerHTML = '';
-
-        if (jugadoresSeleccionados.length > 0) {
-            zonaPuntuacion.style.display = 'block';
-        } else {
-            zonaPuntuacion.style.display = 'none';
-            return;
-        }
-
-        // Mostrar badges de los jugadores actuales
-        jugadoresSeleccionados.forEach(nombre => {
-            const span = document.createElement('span');
-            span.className = 'player-badge';
-            span.textContent = nombre;
-            divPartida.appendChild(span);
-        });
-
-        // Construir la tabla dinámica de rondas
-        let tableHTML = `<div style="overflow-x: auto;"><table class="karioka-table">
-            <thead>
-                <tr>
-                    <th>ORDEN</th>
-                    ${jugadoresSeleccionados.map(p => `<th>${p}</th>`).join('')}
-                </tr>
-            </thead>
-            <tbody>`;
-        
-        RONDAS_KARIOKA.forEach((ronda, index) => {
-            tableHTML += `<tr>
-                <td><strong>${ronda}</strong></td>
-                ${jugadoresSeleccionados.map(p => `<td><input type="number" min="0" class="score-input" data-player="${p}" oninput="calcularTotales()"></td>`).join('')}
-            </tr>`;
-        });
-
-        tableHTML += `</tbody>
-            <tfoot>
-                <tr>
-                    <th>TOTAL</th>
-                    ${jugadoresSeleccionados.map(p => `<th id="total_${p}">0</th>`).join('')}
-                </tr>
-            </tfoot>
-        </table></div>`;
-
-        contenedorTabla.innerHTML = tableHTML;
+    function resetPlayerForm() {
+        editingOldName = null;
+        document.getElementById('playerName').value = "";
+        document.getElementById('playerActionTitle').innerText = "Nuevo Jugador";
+        document.getElementById('playerMainBtn').innerText = "Añadir";
+        document.getElementById('cancelEditBtn').style.display = "none";
+        selectEmoji('👤');
     }
 
-    function calcularTotales() {
-        jugadoresSeleccionados.forEach(p => {
-            let total = 0;
-            document.querySelectorAll(`.score-input[data-player="${p}"]`).forEach(input => {
-                total += parseInt(input.value) || 0;
-            });
-            document.getElementById(`total_${p}`).textContent = total;
-        });
+    async function savePlayer() {
+        const rawName = document.getElementById('playerName').value.trim();
+        if(!rawName) return;
+        const newFullName = selectedEmoji + " " + rawName;
+
+        showLoader(true);
+        const payload = editingOldName 
+            ? { accion: "editar_jugador", nombreViejo: editingOldName, nombreNuevo: newFullName }
+            : { accion: "nuevo_jugador", nombre: newFullName };
+
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        resetPlayerForm();
+        await loadData();
     }
 
     async function finalizarJuego() {
-        if(jugadoresSeleccionados.length < 2) return alert("Se necesitan al menos 2 jugadores para registrar una partida.");
+        if(seleccionados.length < 2) return alert("Mínimo 2 jugadores");
         
-        // Recopilar los resultados basados en los totales calculados
-        let resultados = [];
-        for (let nombre of jugadoresSeleccionados) {
-            let puntajeStr = document.getElementById(`total_${nombre}`).textContent;
-            let puntaje = parseInt(puntajeStr);
-            if (isNaN(puntaje)) puntaje = 0;
-            resultados.push({ nombre, puntaje });
-        }
+        let results = seleccionados.map(n => ({
+            nombre: n,
+            score: parseInt(document.getElementById(`total_${n}`).innerText)
+        })).sort((a,b) => a.score - b.score);
 
-        // Karioka: El menor puntaje es el ganador
-        resultados.sort((a, b) => a.puntaje - b.puntaje);
-        
-        const ganador = resultados[0].nombre;
-        const puntajeGanador = resultados[0].puntaje;
-        const perdedores = resultados.slice(1).map(r => r.nombre);
+        if(!confirm(`Ganador: ${results[0].nombre}. ¿Guardar?`)) return;
 
-        if(!confirm(`🏆 ¡El ganador final es ${ganador} con ${puntajeGanador} puntos!\n\n¿Confirmas que deseas enviar las estadísticas a Google Sheets?`)) return;
-
-        document.getElementById('loading-game').style.display = 'block';
-
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    accion: "guardar_juego", 
-                    ganador: ganador,
-                    puntajeGanador: puntajeGanador,
-                    perdedores: perdedores
-                }),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            });
-            
-            jugadoresSeleccionados = [];
-            document.getElementById('zonaPuntuacion').style.display = 'none';
-            renderizarJugadoresDisponibles();
-            await cargarEstadisticas();
-            alert("¡Partida registrada y estadísticas actualizadas en la nube con éxito!");
-
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Error al intentar salvar el juego.");
-        }
-        document.getElementById('loading-game').style.display = 'none';
+        showLoader(true);
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                accion: "guardar_juego",
+                ganador: results[0].nombre,
+                perdedores: results.slice(1).map(r => r.nombre),
+                puntajeGanador: results[0].score
+            })
+        });
+        seleccionados = [];
+        await loadData();
     }
 
-    function renderizarGrafico() {
+    function renderStats() {
         const ctx = document.getElementById('statsChart').getContext('2d');
-        
-        const nombres = jugadoresGlobales.map(j => j.nombre);
-        const ganados = jugadoresGlobales.map(j => j.ganados);
-        const perdidos = jugadoresGlobales.map(j => j.perdidos);
-
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        chartInstance = new Chart(ctx, {
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: nombres,
+                labels: jugadores.map(j => j.nombre),
                 datasets: [
-                    {
-                        label: 'Partidas Ganadas 🏆',
-                        data: ganados,
-                        backgroundColor: '#2e7d32',
-                    },
-                    {
-                        label: 'Partidas Perdidas ❌',
-                        data: perdidos,
-                        backgroundColor: '#a5d6a7',
-                    }
+                    { label: '🏆 Ganados', data: jugadores.map(j => j.ganados), backgroundColor: '#10b981' },
+                    { label: '💀 Perdidos', data: jugadores.map(j => j.perdidos), backgroundColor: '#f43f5e' }
                 ]
             },
             options: {
-                responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, stacked: true, title: { display: true, text: 'Partidas Totales' } },
-                    x: { stacked: true }
-                }
+                scales: { 
+                    y: { stacked: true, grid: { color: '#334155' } },
+                    x: { stacked: true, grid: { display: false } }
+                },
+                plugins: { legend: { labels: { color: '#f1f5f9' } } }
             }
         });
     }
+
+    function showLoader(show) { document.getElementById('globalLoader').style.display = show ? 'flex' : 'none'; }
 </script>
+
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 
 </body>
 </html>
