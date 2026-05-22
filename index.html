@@ -3,86 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • v12 Ultra-Stable</title>
+    <title>Karioka Pro • v13 Advanced Gameplay</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #020617; --card: #0f172a; --accent: #22c55e; --sky: #38bdf8; --text: #f8fafc; --danger: #ef4444; --border: rgba(255,255,255,0.08); }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 10px; padding-bottom: 80px; }
-        .container { max-width: 800px; margin: 0 auto; }
+        :root { --bg: #020617; --card: #0f172a; --accent: #22c55e; --sky: #38bdf8; --text: #f8fafc; --danger: #ef4444; --border: rgba(255,255,255,0.08); --gold: #fbbf24; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 10px; padding-bottom: 80px; user-select: none; }
+        .container { max-width: 500px; margin: 0 auto; }
         
-        /* Sistema de latido de sincronización */
         .heartbeat { position: fixed; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: none; box-shadow: 0 0 10px var(--accent); }
+        .card { background: var(--card); border-radius: 20px; padding: 18px; border: 1px solid var(--border); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         
-        .card { background: var(--card); border-radius: 20px; padding: 22px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        h1 { text-align: center; background: linear-gradient(90deg, #38bdf8, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.8rem; margin: 15px 0; }
-        
-        .mode-selector { display: flex; background: #0b1120; padding: 5px; border-radius: 12px; margin-bottom: 20px; }
-        .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        /* Modos */
+        .mode-selector { display: flex; background: #0b1120; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
+        .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
         .mode-btn.active { background: var(--accent); color: #000; }
 
-        button { background: var(--accent); color: #000; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 10px; width: 100%; outline: none; }
+        /* Mesa Karioka */
+        .mesa { background: radial-gradient(circle, #1e3a8a 0%, #020617 100%); border-radius: 40px; padding: 25px; border: 1px solid var(--sky); position: relative; margin: 15px 0; }
+        .turn-badge { background: var(--sky); color: #000; padding: 4px 15px; border-radius: 20px; font-weight: 900; font-size: 0.65rem; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 15px var(--sky); }
         
-        .chip { display: inline-flex; align-items: center; gap: 8px; background: #334155; padding: 10px 18px; border-radius: 30px; cursor: pointer; margin: 5px; border: 1px solid transparent; }
-        .chip.active { border-color: var(--sky); background: rgba(56, 189, 248, 0.15); color: var(--sky); font-weight: bold; }
+        .slots { display: flex; justify-content: center; gap: 30px; margin: 15px 0; }
+        .card-box { width: 60px; height: 90px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 2px solid transparent; }
+        .deck { background: #1e293b; border: 2px dashed var(--sky); color: var(--sky); font-size: 0.6rem; text-align: center; }
+        .discard { background: #fff; color: #000; font-size: 1.3rem; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         
-        .mesa { background: radial-gradient(circle, #1e3a8a 0%, #020617 100%); border-radius: 40px; padding: 30px; border: 1px solid var(--sky); position: relative; margin: 15px 0; }
-        .turn-badge { background: var(--sky); color: #000; padding: 5px 20px; border-radius: 20px; font-weight: 900; font-size: 0.7rem; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 15px var(--sky); }
-        
-        .hand { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
-        .card-v { width: 45px; height: 70px; background: white; color: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 2px solid transparent; font-size: 0.9rem; }
+        /* Mano Interactiva */
+        .hand { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 5px; }
+        .card-v { width: 45px; height: 68px; background: white; color: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer; transition: 0.2s; border: 2px solid transparent; font-size: 0.85rem; position: relative; }
         .card-v.red { color: var(--danger); }
-        .card-v.sel { border-color: var(--sky); transform: translateY(-15px); box-shadow: 0 10px 25px var(--sky); }
+        .card-v.blue { color: #1d4ed8; }
+        .card-v.sel { border-color: var(--sky); transform: translateY(-15px); box-shadow: 0 10px 20px var(--sky); z-index: 10; }
+        .card-v.new-card { border-color: var(--gold); box-shadow: 0 0 12px var(--gold); }
 
-        .score-in { width: 55px; text-align: center; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px; padding: 6px; }
+        /* General */
+        button { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
+        .chip { display: inline-block; padding: 6px 14px; background: #1e293b; border-radius: 20px; margin: 3px; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; }
+        .chip.active { border-color: var(--sky); background: rgba(56, 189, 248, 0.1); color: var(--sky); }
+        .score-in { width: 45px; background: #020617; border: 1px solid #334155; color: #fff; text-align: center; border-radius: 5px; padding: 5px; font-size: 0.8rem; }
         .emoji-pop { position: absolute; background: var(--card); border: 1px solid var(--sky); border-radius: 20px; padding: 15px; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; z-index: 1000; bottom: 70px; }
-        .hist-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--accent); }
-        .loader-full { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .loader-full { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 10000; }
     </style>
 </head>
 <body>
 
 <div id="heartbeat" class="heartbeat"></div>
-<div id="loader" class="loader-full"><p style="font-weight:bold; color:var(--sky);">SINCRONIZANDO MESA...</p></div>
+<div id="loader" class="loader-full"><p style="color:var(--sky); font-weight:bold;">SINCRONIZANDO...</p></div>
 
 <div class="container">
-    <h1>Karioka Pro Ultimate</h1>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h1 style="color: var(--sky); font-size: 1.1rem; margin:0;">Karioka PRO</h1>
+        <div id="logO" style="font-size: 0.6rem; color: var(--sky); font-style: italic;">Esperando mesa...</div>
+    </div>
 
     <div class="mode-selector">
-        <button id="btnF" class="mode-btn active" onclick="setMode('fisico')">MÉTODO FÍSICO (KPI)</button>
-        <button id="btnO" class="mode-btn" onclick="setMode('online')">MÉTODO ONLINE (LIVE)</button>
+        <button onclick="switchM('fisico')" id="mFisico" class="mode-btn active">KPI FÍSICO</button>
+        <button onclick="switchM('online')" id="mOnline" class="mode-btn">LIVE ONLINE</button>
     </div>
 
-    <div id="panelO" class="card" style="display:none;">
-        <div id="loginO">
+    <div id="areaOnline" style="display:none;">
+        <div id="loginO" class="card">
             <input type="text" id="salaId" placeholder="ID de Sala" style="margin-bottom:10px;">
-            <button class="btn-sky" style="width:100%; padding:12px; border-radius:10px; border:none; font-weight:bold; cursor:pointer;" onclick="conectarS()">Unirse a Partida</button>
-            <div id="whoAmI" style="display:none; margin-top:20px; text-align:center;">
-                <p style="font-size:0.8rem; color:var(--sky); margin-bottom:10px;">Selecciona quién eres en la mesa:</p>
-                <div id="playerOptions" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+            <button onclick="conectarS()">Entrar a Mesa</button>
+            <div id="whoAmI" style="display:none; margin-top:20px;">
+                <p style="font-size:0.7rem; color:var(--sky); text-align:center;">¿Quién eres en esta mesa?</p>
+                <div id="pOptions" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:10px;"></div>
             </div>
         </div>
 
-        <div id="mesaO" style="display:none;">
+        <div id="juegoO" style="display:none;">
             <div class="mesa">
-                <div id="txtTurn" class="turn-badge">TURNO: --</div>
-                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:15px;">
-                    <div onclick="play('robar_mazo')" style="width:65px; height:95px; border:2px dashed var(--sky); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.65rem;">MAZO</div>
-                    <div id="pozoCard" onclick="play('robar_pozo')" style="width:65px; height:95px; background:white; color:#000; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.3rem;">--</div>
+                <div id="txtTurno" class="turn-badge">TURNO: --</div>
+                <div class="slots">
+                    <div class="card-box deck" onclick="play('robar_mazo')">MAZO<br>ROBAR</div>
+                    <div id="pozoCard" class="card-box discard" onclick="play('robar_pozo')">--</div>
                 </div>
-                <div id="manoContainer" class="hand"></div>
+                <div id="mano" class="hand"></div>
             </div>
-            <button id="btnTirar" class="btn-success" style="width:100%; padding:12px; border-radius:10px; border:none; font-weight:bold; display:none;" onclick="play('tirar')">TIRAR CARTA SELECCIONADA</button>
-            <p id="logO" style="font-size:0.65rem; color:var(--sky); text-align:center; margin-top:10px; font-style:italic;"></p>
+            <p style="font-size:0.6rem; color:var(--text-dim); text-align:center; margin-bottom:10px;">Pista: Toca dos cartas de tu mano para intercambiarlas.</p>
+            <button id="btnTirar" style="display:none; background:var(--danger); color:#fff;" onclick="play('tirar')">DESCARTAR SELECCIONADA</button>
+            <button style="background:#334155; color:#fff; margin-top:10px;" onclick="location.reload()">Cerrar Sala</button>
         </div>
     </div>
 
-    <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 style="font-size:0.8rem; color:var(--accent); margin:0;">MESA DE PUNTAJES</h2>
-            <button id="btnControl" onclick="controlPartida()">Iniciar Partida</button>
-        </div>
+    <div id="areaFisica" class="card">
         <div id="chipsContainer"></div>
+        <button id="btnFisico" class="btn" style="background:var(--sky); color:#000; margin-top:10px;" onclick="controlPartida()">Iniciar Nueva Partida</button>
         <div id="zonaTabla" style="display:none; margin-top:20px; overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:0.75rem; text-align:center;">
                 <thead id="tHead"></thead>
@@ -93,132 +98,168 @@
     </div>
 
     <div class="card" style="position:relative;">
-        <h2 style="font-size:0.8rem; color:var(--sky); margin-top:0;">PERFILES</h2>
+        <h2 style="font-size:0.7rem; color:var(--text-dim); margin:0 0 10px;">GESTIÓN PERFILES</h2>
         <div style="display:flex; gap:10px;">
-            <div id="emojiBtn" onclick="tE()" style="background:#334155; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;">👤</div>
-            <input type="text" id="nameIn" placeholder="Nombre...">
-            <button onclick="addP()">Añadir</button>
+            <div id="emojiBtn" onclick="tE()" style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.4rem;">👤</div>
+            <input type="text" id="nameIn" placeholder="Nombre..." style="flex:1;">
+            <button onclick="addP()" style="width:50px; background:var(--sky); color:#000;">+</button>
         </div>
         <div id="emojiPop" class="emoji-pop">
-            <div onclick="setE('👤')">👤</div><div onclick="setE('🦁')">🦁</div><div onclick="setE('🥷')">🥷</div><div onclick="setE('🤖')">🤖</div><div onclick="setE('🦄')">🦄</div>
-            <div onclick="setE('🔥')">🔥</div><div onclick="setE('💎')">💎</div><div onclick="setE('🦊')">🦊</div><div onclick="setE('🐯')">🐯</div><div onclick="setE('🍀')">🍀</div>
+            <div onclick="setE('👤')">👤</div><div onclick="setE('🦁')">🦁</div><div onclick="setE('🥷')">🥷</div><div onclick="setE('🤖')">🤖</div><div onclick="setE('🦊')">🦊</div>
+            <div onclick="setE('🦄')">🦄</div><div onclick="setE('💎')">💎</div><div onclick="setE('🔥')">🔥</div><div onclick="setE('🍀')">🍀</div><div onclick="setE('🐯')">🐯</div>
         </div>
         <div id="listaTodos" style="margin-top:15px; opacity:0.6; display:flex; gap:5px; flex-wrap:wrap;"></div>
     </div>
 
     <details class="card">
-        <summary style="cursor:pointer; color:var(--accent); font-weight:bold;">ESTADÍSTICAS Y AUDITORÍA</summary>
-        <div style="height:220px; margin-top:15px;"><canvas id="chart"></canvas></div>
+        <summary style="cursor:pointer; font-size:0.8rem; font-weight:bold; color:var(--accent);">HISTORIAL Y KPIs</summary>
         <div id="histList" style="margin-top:15px;"></div>
     </details>
 </div>
 
 <script>
     const API = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec";
-    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
+    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Tríos 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
 
-    let state = { modo: 'fisico', jugadores: [], seleccionados: [], activo: false, ts: null, emoji: '👤', sala: null, me: null, selC: null, poll: null };
+    let st = { modo: 'fisico', sala: null, me: null, selC: null, activo: false, ts: null, pSelected: [], poll: null, emoji: '👤', manoLocal: [] };
 
-    window.onload = init;
-
-    async function init() {
-        showL(true);
+    window.onload = async () => {
         const r = await fetch(API);
         const d = await r.json();
-        state.jugadores = d.jugadores || [];
-        renderChips();
+        renderChips(d.jugadores);
         renderHist(d.historial);
-        renderChart(d.jugadores);
-        showL(false);
+    };
+
+    function renderChips(jugadores) {
+        const c = document.getElementById('chipsContainer');
+        c.innerHTML = '';
+        jugadores.forEach(j => {
+            const div = document.createElement('div');
+            div.className = `chip ${st.pSelected.includes(j.nombre) ? 'active' : ''}`;
+            div.innerHTML = j.nombre;
+            div.onclick = () => { if(!st.activo) { if(st.pSelected.includes(j.nombre)) st.pSelected = st.pSelected.filter(x=>x!==j.nombre); else st.pSelected.push(j.nombre); renderChips(jugadores); } };
+            c.appendChild(div);
+        });
+        document.getElementById('listaTodos').innerHTML = jugadores.map(j => `<div class="chip" style="opacity:0.5;">${j.nombre} ✏️</div>`).join('');
     }
 
-    function setMode(m) {
-        state.modo = m;
-        document.getElementById('btnF').classList.toggle('active', m==='fisico');
-        document.getElementById('btnO').classList.toggle('active', m==='online');
-        document.getElementById('panelO').style.display = m==='online' ? 'block' : 'none';
-        if(m === 'fisico') clearInterval(state.poll);
+    function switchM(m) {
+        st.modo = m;
+        document.getElementById('mFisico').classList.toggle('active', m==='fisico');
+        document.getElementById('mOnline').classList.toggle('active', m==='online');
+        document.getElementById('areaFisica').style.display = m==='fisico'?'block':'none';
+        document.getElementById('areaOnline').style.display = m==='online'?'block':'none';
+        if(m==='fisico') clearInterval(st.poll);
     }
 
     async function conectarS() {
         const id = document.getElementById('salaId').value;
-        if(!id) return alert("Escribe el ID de sala");
-        showL(true);
+        if(!id) return;
+        document.getElementById('loader').style.display='flex';
         const r = await fetch(`${API}?salaId=${id}`);
         const d = await r.json();
-        if(d.error) { alert("Sala no encontrada"); showL(false); return; }
-        
-        state.sala = id;
-        document.getElementById('whoAmI').style.display = 'block';
-        const opt = document.getElementById('playerOptions');
-        opt.innerHTML = '';
-        d.game.jugadores.forEach(p => {
-            const b = document.createElement('button');
-            b.style.cssText = "background:#334155; color:#fff; border:none; padding:8px 15px; border-radius:15px; cursor:pointer;";
-            b.innerText = p;
-            b.onclick = () => { state.me = p; startOnlineSync(); };
-            opt.appendChild(b);
-        });
-        showL(false);
+        if(d.error) { alert("No existe"); document.getElementById('loader').style.display='none'; return; }
+        st.sala = id;
+        document.getElementById('whoAmI').style.display='block';
+        const opt = document.getElementById('pOptions');
+        opt.innerHTML = d.game.jugadores.map(p => `<button onclick="iniciarO('${p}')" class="chip" style="background:var(--sky); color:#000; border:none; font-weight:bold;">${p}</button>`).join('');
+        document.getElementById('loader').style.display='none';
     }
 
-    function startOnlineSync() {
-        document.getElementById('loginO').style.display = 'none';
-        document.getElementById('mesaO').style.display = 'block';
-        document.getElementById('zonaTabla').style.display = 'block';
-        state.poll = setInterval(sync, 4000);
+    function iniciarO(nombre) {
+        st.me = nombre;
+        document.getElementById('loginO').style.display='none';
+        document.getElementById('juegoO').style.display='block';
+        st.poll = setInterval(sync, 5000);
         sync();
     }
 
     async function sync() {
         document.getElementById('heartbeat').style.display = 'block';
         try {
-            const r = await fetch(`${API}?salaId=${state.sala}`);
+            const r = await fetch(`${API}?salaId=${st.sala}`);
             const d = await r.json();
             const g = d.game;
-            const isMyTurn = g.jugadores[g.turno] === state.me;
+            const miTurno = g.jugadores[g.turno] === st.me;
             
-            document.getElementById('txtTurn').innerText = `TURNO: ${g.jugadores[g.turno]} ${isMyTurn ? '(TUYO)' : ''}`;
+            document.getElementById('txtTurn').innerText = `TURNO: ${g.jugadores[g.turno]} ${miTurno?'(TÚ)':''}`;
             document.getElementById('logO').innerText = g.log;
-            
-            const pCard = document.getElementById('pozoCard');
-            pCard.innerText = g.pozo[0];
-            pCard.style.color = (g.pozo[0].includes('♥')||g.pozo[0].includes('♦')) ? 'var(--danger)' : '#000';
+            document.getElementById('pozoCard').innerText = g.pozo[0].txt;
+            document.getElementById('pozoCard').style.color = g.pozo[0].color === 'red' ? 'var(--danger)' : (g.pozo[0].color === 'blue' ? '#1d4ed8' : '#000');
 
-            const handZ = document.getElementById('manoContainer');
-            handZ.innerHTML = '';
-            (g.manos[state.me] || []).forEach(c => {
-                const dv = document.createElement('div');
-                dv.className = `card-v ${state.selC === c ? 'sel' : ''} ${(c.includes('♥')||c.includes('♦')) ? 'red' : ''}`;
-                dv.innerText = c;
-                dv.onclick = () => { if(isMyTurn && g.fase === 'tirar') { state.selC = c; sync(); } };
-                handZ.appendChild(dv);
-            });
-            document.getElementById('btnTirar').style.display = (isMyTurn && g.fase === 'tirar' && state.selC) ? 'block' : 'none';
+            // Lógica de Reordenamiento y Nuevas Cartas
+            const manoNueva = g.manos[st.me] || [];
+            if (st.manoLocal.length !== manoNueva.length) {
+                // Si el tamaño cambió (robó o tiró), reseteamos mano local
+                st.manoLocal = manoNueva;
+            } else {
+                // Si el tamaño es igual, pero hay una carta nueva (ID diferente), la inyectamos conservando orden local
+                const idsLocales = st.manoLocal.map(c => c.id);
+                manoNueva.forEach(cn => {
+                    if(!idsLocales.includes(cn.id)) {
+                        // Encontrar qué carta desapareció y reemplazarla o simplemente añadirla
+                        st.manoLocal.push(cn);
+                    }
+                });
+            }
             
-            // Actualizar tabla de puntos online
-            state.seleccionados = d.jugadores;
+            renderHand(g.ultimaRecogidaId, miTurno, g.fase);
             renderTablaFisica(d.puntos);
         } catch(e) {}
         setTimeout(() => document.getElementById('heartbeat').style.display = 'none', 500);
     }
 
-    async function play(tipo) {
-        document.getElementById('heartbeat').style.backgroundColor = 'var(--sky)';
-        document.getElementById('heartbeat').style.display = 'block';
-        await fetch(API, { method: 'POST', body: JSON.stringify({ accion: "accion_juego", salaId: state.sala, tipo, user: state.me, carta: state.selC }), headers: {"Content-Type":"text/plain"} });
-        state.selC = null;
-        await sync();
+    function renderHand(newId, miTurno, fase) {
+        const container = document.getElementById('mano');
+        container.innerHTML = '';
+        st.manoLocal.forEach((c, idx) => {
+            const div = document.createElement('div');
+            div.className = `card-v ${c.color} ${st.selC && st.selC.id === c.id ? 'sel' : ''} ${c.id === newId ? 'new-card' : ''}`;
+            div.innerHTML = c.txt;
+            div.onclick = () => handleCardClick(c, idx, miTurno, fase);
+            container.appendChild(div);
+        });
+        document.getElementById('btnTirar').style.display = (miTurno && fase === 'tirar' && st.selC) ? 'block' : 'none';
     }
 
-    // FISICO
+    function handleCardClick(card, index, miTurno, fase) {
+        if (!st.selC) {
+            st.selC = card;
+            st.selIndex = index;
+        } else {
+            if (st.selC.id === card.id) {
+                // Deseleccionar
+                st.selC = null;
+            } else {
+                // Intercambiar lugares (Reordenar)
+                const temp = st.manoLocal[st.selIndex];
+                st.manoLocal[st.selIndex] = st.manoLocal[index];
+                st.manoLocal[index] = temp;
+                st.selC = null;
+                // Guardar orden en servidor de forma silenciosa
+                fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo:'reordenar', user: st.me, nuevaMano: st.manoLocal }), headers:{"Content-Type":"text/plain"} });
+            }
+        }
+        renderHand(null, miTurno, fase);
+    }
+
+    async function play(tipo) {
+        if(tipo === 'tirar' && !st.selC) return;
+        document.getElementById('loader').style.display='flex';
+        await fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo, user: st.me, cartaId: st.selC ? st.selC.id : null }), headers:{"Content-Type":"text/plain"} });
+        st.selC = null;
+        await sync();
+        document.getElementById('loader').style.display='none';
+    }
+
+    // FISICO / KPI
     function controlPartida() {
-        if(!state.activo) {
-            if(state.seleccionados.length < 2) return alert("Selecciona jugadores arriba");
-            state.activo = true; state.ts = Date.now();
-            document.getElementById('btnControl').innerText = "Finalizar y Guardar";
-            document.getElementById('btnControl').style.background = 'var(--danger)';
-            document.getElementById('btnControl').style.color = '#fff';
+        if(!st.activo) {
+            if(st.pSelected.length < 2) return alert("Selecciona jugadores");
+            st.activo = true; st.ts = Date.now();
+            document.getElementById('btnFisico').innerText = "Finalizar Partida";
+            document.getElementById('btnFisico').style.background = 'var(--danger)';
+            document.getElementById('btnFisico').style.color = '#fff';
             document.getElementById('zonaTabla').style.display = 'block';
             renderTablaFisica();
         } else {
@@ -227,14 +268,15 @@
     }
 
     function renderTablaFisica(ptsCargados = null) {
-        document.getElementById('tHead').innerHTML = `<tr><th>Fase</th>${state.seleccionados.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
-        document.getElementById('tBody').innerHTML = RONDAS.map((r, ri) => `<tr><td style="text-align:left;">${r}</td>${state.seleccionados.map(n => `<td><input type="number" class="score-in" data-p="${n}" value="${ptsCargados?ptsCargados[n][ri]:0}" oninput="sum()"></td>`).join('')}</tr>`).join('');
-        document.getElementById('tFoot').innerHTML = `<tr><td>TOTAL</td>${state.seleccionados.map(n => `<td id="tot_${n}">0</td>`).join('')}</tr>`;
+        const seleccionados = st.modo === 'online' ? st.pSelected : st.pSelected; // Simplificado
+        document.getElementById('tHead').innerHTML = `<tr><th>Ronda</th>${st.pSelected.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
+        document.getElementById('tBody').innerHTML = RONDAS.map((r, ri) => `<tr><td style="text-align:left;">${r}</td>${st.pSelected.map(n => `<td><input type="number" class="score-in" data-p="${n}" value="${ptsCargados?ptsCargados[n][ri]:0}" oninput="sum()"></td>`).join('')}</tr>`).join('');
+        document.getElementById('tFoot').innerHTML = `<tr><td>TOTAL</td>${st.pSelected.map(n => `<td id="tot_${n}">0</td>`).join('')}</tr>`;
         sum();
     }
 
     function sum() {
-        state.seleccionados.forEach(n => {
+        st.pSelected.forEach(n => {
             let t = 0;
             document.querySelectorAll(`[data-p="${n}"]`).forEach(i => t += (parseInt(i.value)||0));
             document.getElementById(`tot_${n}`).innerText = t;
@@ -242,55 +284,31 @@
     }
 
     async function finalizar() {
-        let r = state.seleccionados.map(n => ({ n, s: parseInt(document.getElementById(`tot_${n}`).innerText) })).sort((a,b)=>a.s - b.s);
+        let r = st.pSelected.map(n => ({ n, s: parseInt(document.getElementById(`tot_${n}`).innerText) })).sort((a,b)=>a.s - b.s);
         if(!confirm(`Ganador: ${r[0].n}. ¿Guardar resultados?`)) return;
-        showL(true);
-        let tabla = { jugadores: state.seleccionados, rondas: RONDAS, puntos: {} };
-        state.seleccionados.forEach(n => tabla.puntos[n] = Array.from(document.querySelectorAll(`[data-p="${n}"]`)).map(i => parseInt(i.value)||0));
+        document.getElementById('loader').style.display='flex';
+        let tabla = { jugadores: st.pSelected, rondas: RONDAS, puntos: {} };
+        st.pSelected.forEach(n => tabla.puntos[n] = Array.from(document.querySelectorAll(`[data-p="${n}"]`)).map(i => parseInt(i.value)||0));
         await fetch(API, { method: 'POST', body: JSON.stringify({
-            accion: "guardar_juego", tsInicio: state.ts, tsFin: Date.now(), fecha: new Date().toLocaleDateString(),
-            inicio: new Date(state.ts).toLocaleTimeString(), fin: new Date().toLocaleTimeString(),
+            accion: "guardar_juego", tsInicio: st.ts, tsFin: Date.now(), fecha: new Date().toLocaleDateString(),
+            inicio: new Date(st.ts).toLocaleTimeString(), fin: new Date().toLocaleTimeString(),
             ganador: r[0].n, perdedores: r.slice(1).map(x => x.n), puntaje: r[0].s, tabla
         }), headers: {"Content-Type":"text/plain"} });
         location.reload();
     }
 
-    // HELPERS
-    function renderChips() {
-        const c = document.getElementById('chipsContainer');
-        c.innerHTML = '';
-        state.jugadores.forEach(j => {
-            const d = document.createElement('div');
-            d.className = `chip ${state.seleccionados.includes(j.nombre) ? 'active' : ''}`;
-            d.innerHTML = j.nombre;
-            d.onclick = () => { if(!state.activo) { if(state.seleccionados.includes(j.nombre)) state.seleccionados = state.seleccionados.filter(x => x!==j.nombre); else state.seleccionados.push(j.nombre); renderChips(); } };
-            c.appendChild(d);
-        });
-        const l = document.getElementById('listaTodos');
-        l.innerHTML = state.jugadores.map(j => `<div class="chip" style="opacity:0.5;">${j.nombre} ✏️</div>`).join('');
-    }
+    // HELPERS EMOJI / PERFIL
     function tE() { const p = document.getElementById('emojiPop'); p.style.display = (p.style.display==='grid')?'none':'grid'; }
-    function setE(e) { state.emoji = e; document.getElementById('emojiBtn').innerText = e; tE(); }
+    function setE(e) { st.emoji = e; document.getElementById('emojiBtn').innerText = e; tE(); }
     async function addP() {
         const n = document.getElementById('nameIn').value; if(!n) return;
-        showL(true);
-        await fetch(API, { method:'POST', body: JSON.stringify({ accion:"nuevo_jugador", nombre: state.emoji+" "+n }), headers:{"Content-Type":"text/plain"} });
+        await fetch(API, { method:'POST', body: JSON.stringify({ accion:"nuevo_jugador", nombre: st.emoji+" "+n }), headers:{"Content-Type":"text/plain"} });
         location.reload();
     }
-    function showL(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-    function renderChart(j) { /* Lógica de Chart.js */ }
     function renderHist(h) {
         const z = document.getElementById('histList');
         if(!h || h.length === 0) { z.innerHTML = "<p style='text-align:center; opacity:0.5;'>Sin datos.</p>"; return; }
-        z.innerHTML = h.map((x, i) => `
-            <div class="hist-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="color:var(--success); font-weight:bold;">🏆 ${x.ganador}</span>
-                    <span style="font-size:0.7rem; color:var(--sky);">${x.puntaje} pts | ⏱ ${x.duracion}</span>
-                </div>
-                <p style="font-size:0.6rem; opacity:0.5; margin:5px 0;">${x.fecha} | ${x.inicio} - ${x.fin}</p>
-            </div>
-        `).join('');
+        z.innerHTML = h.map(x => `<div class="hist-card"><div style="display:flex; justify-content:space-between;"><b>🏆 ${x.ganador}</b><span>${x.puntaje} pts</span></div><p style="font-size:0.6rem; opacity:0.5; margin:5px 0;">${x.fecha} | Duración: ${x.duracion}</p></div>`).join('');
     }
 </script>
 </body>
