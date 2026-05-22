@@ -19,35 +19,23 @@
         }
 
         body {
-            margin: 0;
-            padding: 10px;
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', system-ui, sans-serif;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding-bottom: 80px;
+            margin: 0; padding: 10px; background-color: var(--bg); color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif; display: flex; flex-direction: column;
+            gap: 20px; padding-bottom: 80px;
         }
 
         .container { max-width: 800px; margin: 0 auto; width: 100%; }
 
         h1 {
-            font-size: 2rem;
-            text-align: center;
+            font-size: 2rem; text-align: center;
             background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 30px 0;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 30px 0;
         }
 
         .card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 24px;
+            background: var(--card); border-radius: 20px; padding: 24px;
             box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            margin-bottom: 24px;
+            border: 1px solid var(--border); margin-bottom: 24px;
         }
 
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -144,18 +132,18 @@
         <div class="player-form-row">
             <div class="emoji-trigger" id="currentEmoji" onclick="toggleEmojiWindow()">👤</div>
             <div class="emoji-window" id="emojiWindow">
-                <div class="emoji-option" onclick="selectEmoji('👤')">👤</div>
-                <div class="emoji-option" onclick="selectEmoji('🤴')">🤴</div><div class="emoji-option" onclick="selectEmoji('🥷')">🥷</div>
-                <div class="emoji-option" onclick="selectEmoji('🤡')">🤡</div><div class="emoji-option" onclick="selectEmoji('👽')">👽</div>
-                <div class="emoji-option" onclick="selectEmoji('🤖')">🤖</div><div class="emoji-option" onclick="selectEmoji('🦁')">🦁</div>
-                <div class="emoji-option" onclick="selectEmoji('🐯')">🐯</div><div class="emoji-option" onclick="selectEmoji('🦊')">🦊</div>
-                <div class="emoji-option" onclick="selectEmoji('🐶')">🐶</div><div class="emoji-option" onclick="selectEmoji('🐭')">🐭</div>
-                <div class="emoji-option" onclick="selectEmoji('🐸')">🐸</div><div class="emoji-option" onclick="selectEmoji('🐙')">🐙</div>
-                <div class="emoji-option" onclick="selectEmoji('🦄')">🦄</div><div class="emoji-option" onclick="selectEmoji('🐲')">🐲</div>
-                <div class="emoji-option" onclick="selectEmoji('🌸')">🌸</div><div class="emoji-option" onclick="selectEmoji('🌻')">🌻</div>
-                <div class="emoji-option" onclick="selectEmoji('🌴')">🌴</div><div class="emoji-option" onclick="selectEmoji('🔥')">🔥</div>
-                <div class="emoji-option" onclick="selectEmoji('🍀')">🍀</div><div class="emoji-option" onclick="selectEmoji('🌮')">🌮</div>
-                <div class="emoji-option" onclick="selectEmoji('🍕')">🍕</div><div class="emoji-option" onclick="selectEmoji('💎')">💎</div>
+                <div class="emoji-option" onclick="selectEmoji('👤')">👤</div><div class="emoji-option" onclick="selectEmoji('🤴')">🤴</div>
+                <div class="emoji-option" onclick="selectEmoji('🥷')">🥷</div><div class="emoji-option" onclick="selectEmoji('🤡')">🤡</div>
+                <div class="emoji-option" onclick="selectEmoji('👽')">👽</div><div class="emoji-option" onclick="selectEmoji('🤖')">🤖</div>
+                <div class="emoji-option" onclick="selectEmoji('🦁')">🦁</div><div class="emoji-option" onclick="selectEmoji('🐯')">🐯</div>
+                <div class="emoji-option" onclick="selectEmoji('🦊')">🦊</div><div class="emoji-option" onclick="selectEmoji('🐶')">🐶</div>
+                <div class="emoji-option" onclick="selectEmoji('🐭')">🐭</div><div class="emoji-option" onclick="selectEmoji('🐸')">🐸</div>
+                <div class="emoji-option" onclick="selectEmoji('🐙')">🐙</div><div class="emoji-option" onclick="selectEmoji('🦄')">🦄</div>
+                <div class="emoji-option" onclick="selectEmoji('🐲')">🐲</div><div class="emoji-option" onclick="selectEmoji('🌸')">🌸</div>
+                <div class="emoji-option" onclick="selectEmoji('🌻')">🌻</div><div class="emoji-option" onclick="selectEmoji('🌴')">🌴</div>
+                <div class="emoji-option" onclick="selectEmoji('🔥')">🔥</div><div class="emoji-option" onclick="selectEmoji('🍀')">🍀</div>
+                <div class="emoji-option" onclick="selectEmoji('🌮')">🌮</div><div class="emoji-option" onclick="selectEmoji('🍕')">🍕</div>
+                <div class="emoji-option" onclick="selectEmoji('💎')">💎</div>
             </div>
             <input type="text" id="playerName" placeholder="Nombre...">
             <button id="playerMainBtn" onclick="savePlayer()">Añadir</button>
@@ -178,7 +166,6 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec";
-    // Eliminada Escala Color por solicitud del usuario
     const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
     
     let jugadores = [];
@@ -230,7 +217,7 @@
 
             const item = document.createElement('div');
             item.className = 'player-chip';
-            item.innerHTML = `${j.nombre} <span onclick="startEdit('${j.nombre}')" style="margin-left:8px; opacity:0.5;">✏️</span>`;
+            item.innerHTML = `${j.nombre} <span onclick="startEdit('${j.nombre}')" style="margin-left:8px; opacity:0.5; cursor:pointer;">✏️</span>`;
             list.appendChild(item);
         });
         updateGameTable();
@@ -278,7 +265,7 @@
     async function finalizarJuego() {
         if(seleccionados.length < 2) return;
         let res = seleccionados.map(n => ({ nombre: n, score: parseInt(document.getElementById(`total_${n}`).innerText) })).sort((a,b) => a.score - b.score);
-        if(!confirm(`Ganador: ${res[0].nombre}. ¿Guardar?`)) return;
+        if(!confirm(`Ganador: ${res[0].nombre}. ¿Guardar resultados?`)) return;
 
         showLoader(true);
         await fetch(API_URL, {
@@ -305,8 +292,9 @@
                     <strong>🏆 ${h.ganador}</strong>
                     <span>${h.puntaje} pts</span>
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-dim); margin: 4px 0;">
-                    🕒 ${h.inicio} ⮕ ${h.fin}
+                <div style="display:flex; justify-content:space-between; font-size: 0.7rem; color: var(--text-dim); margin: 4px 0;">
+                    <span>🕒 Duración: <b>${h.duracion}</b></span>
+                    <span>${h.fin.split(',')[0]}</span>
                 </div>
                 <div style="font-size: 0.75rem; opacity: 0.8;">Perdedores: ${h.perdedores}</div>
             </div>
