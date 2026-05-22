@@ -3,48 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • v16 Unified</title>
+    <title>Karioka Pro • v12.0 Official</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #020617; --card: #0f172a; --accent: #22c55e; --sky: #38bdf8; --text: #f8fafc; --danger: #ef4444; --border: rgba(255,255,255,0.08); --gold: #fbbf24; }
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 10px; padding-bottom: 80px; user-select: none; }
-        .container { max-width: 500px; margin: 0 auto; }
+        .container { max-width: 600px; margin: 0 auto; }
         .card { background: var(--card); border-radius: 20px; padding: 18px; border: 1px solid var(--border); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        h1 { text-align: center; background: linear-gradient(90deg, #38bdf8, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; margin: 10px 0; }
+        h1 { text-align: center; background: linear-gradient(90deg, #38bdf8, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.6rem; margin: 10px 0; }
         
-        /* Modos */
         .mode-selector { display: flex; background: #0b1120; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
-        .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; font-weight: bold; font-size: 0.7rem; }
+        .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
         .mode-btn.active { background: var(--accent); color: #000; }
 
-        /* Mesa Karioka */
+        /* Mesa Virtual */
         .mesa { background: radial-gradient(circle, #1e3a8a 0%, #020617 100%); border-radius: 40px; padding: 30px; border: 1px solid var(--sky); position: relative; margin: 15px 0; }
         .turn-badge { background: var(--sky); color: #000; padding: 4px 15px; border-radius: 20px; font-weight: 900; font-size: 0.65rem; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 15px var(--sky); }
         .slots { display: flex; justify-content: center; gap: 30px; margin: 15px 0; }
         .card-box { width: 60px; height: 90px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 2px solid transparent; }
         .deck { background: #1e293b; border: 2px dashed var(--sky); color: var(--sky); font-size: 0.6rem; text-align: center; }
         .discard { background: #fff; color: #000; font-size: 1.3rem; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .hand { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        
+        /* Mano y cartas */
+        .hand { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 15px; }
         .card-v { width: 45px; height: 68px; background: white; color: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer; transition: 0.2s; border: 2px solid transparent; font-size: 0.85rem; position: relative; }
         .card-v.red { color: var(--danger); }
         .card-v.blue { color: #1d4ed8; }
-        .card-v.sel { border-color: var(--sky); transform: translateY(-15px); box-shadow: 0 10px 20px var(--sky); z-index: 10; }
-        .card-v.new-card { border-color: var(--gold); box-shadow: 0 0 12px var(--gold); }
+        .card-v.sel { border-color: var(--sky); transform: translateY(-12px); box-shadow: 0 10px 20px var(--sky); z-index: 10; }
+        .card-v.new-card { border-color: var(--gold); box-shadow: 0 0 14px var(--gold); animation: pulseGlow 1.5s infinite; }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 5px var(--gold); } 50% { box-shadow: 0 0 15px var(--gold); } }
 
-        /* General UI */
+        /* Extensión de tablero */
+        .workspace { background: #0b1120; border: 1px dashed #334155; border-radius: 15px; padding: 12px; margin-top: 15px; }
+        .workspace-group { background: rgba(255,255,255,0.02); border: 1px solid #1e293b; border-radius: 10px; padding: 8px; margin-bottom: 8px; min-height: 80px; }
+        .workspace-title { font-size: 0.65rem; color: var(--sky); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+
         button { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
         .chip { display: inline-block; padding: 7px 15px; background: #1e293b; border-radius: 20px; margin: 4px; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; }
         .chip.active { border-color: var(--sky); background: rgba(56, 189, 248, 0.1); color: var(--sky); font-weight: bold; }
-        .score-in { width: 45px; background: #020617; border: 1px solid #334155; color: #fff; text-align: center; border-radius: 5px; padding: 5px; font-size: 0.8rem; }
+        .score-in { width: 42px; background: #020617; border: 1px solid #334155; color: #fff; text-align: center; border-radius: 5px; padding: 5px; font-size: 0.75rem; }
+        
         .emoji-pop { position: absolute; background: var(--card); border: 1px solid var(--sky); border-radius: 20px; padding: 15px; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; z-index: 1000; bottom: 70px; }
         .heartbeat { position: fixed; top: 10px; right: 10px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; display: none; }
         .loader-full { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .table-wrap { overflow-x: auto; margin-top: 10px; border-radius: 8px; background: #0b1120; border: 1px solid var(--border); }
+        .k-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.75rem; }
+        .k-table th, .k-table td { padding: 8px; border-bottom: 1px solid #233142; }
+        .hist-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .hist-winner-btn { background: transparent; color: var(--accent); font-weight: bold; border: none; cursor: pointer; text-decoration: underline; text-decoration-style: dotted; padding: 0; width: auto; display: inline; }
     </style>
 </head>
 <body>
 
 <div id="heartbeat" class="heartbeat"></div>
-<div id="loader" class="loader-full"><p style="font-weight:bold; color:var(--sky);">PROCESANDO...</p></div>
+<div id="loader" class="loader-full"><p style="font-weight:bold; color:var(--sky);">SINCRONIZANDO CON GOOGLE SHEETS...</p></div>
 
 <div class="container">
     <h1>Karioka PRO Ultimate</h1>
@@ -56,13 +68,27 @@
 
     <div class="mode-selector">
         <button onclick="switchM('fisico')" id="mFisico" class="mode-btn active">KPI FÍSICO</button>
-        <button onclick="switchM('online')" id="mOnline" class="mode-btn">MODO ONLINE</button>
+        <button onclick="switchM('online')" id="mOnline" class="mode-btn">MODO ONLINE LIVE</button>
     </div>
 
     <div id="areaOnline" style="display:none;">
         <div id="setupOnline" class="card">
-            <h2 style="font-size:0.7rem; color:var(--sky); margin:0 0 10px;">PASO 2: GESTIÓN DE MESA</h2>
-            <input type="text" id="salaId" placeholder="Código de Mesa (ej: 1234)" style="margin-bottom:10px;">
+            <h2 style="font-size:0.7rem; color:var(--sky); margin:0 0 10px;">PASO 2: GESTIÓN DE MESA ONLINE</h2>
+            <div style="margin-bottom:10px; display:flex; gap:10px;">
+                <input type="text" id="salaId" placeholder="Código de Mesa (ej: 1234)" style="flex:1;">
+                <select id="selectRondaHost" style="background:#0f172a; color:#fff; border:1px solid #334155; border-radius:10px; padding:10px;">
+                    <option value="0">2 Tríos</option>
+                    <option value="1">1 Trío 1 Escala</option>
+                    <option value="2">2 Escalas</option>
+                    <option value="3">3 Tríos</option>
+                    <option value="4">2 Tríos 1 Escala</option>
+                    <option value="5">1 Trío 2 Escalas</option>
+                    <option value="6">3 Escalas</option>
+                    <option value="7">4 Tríos</option>
+                    <option value="8">Escala Sucia</option>
+                    <option value="9">Escala Real</option>
+                </select>
+            </div>
             <div style="display:flex; gap:10px;">
                 <button onclick="crearS()" style="flex:1;">CREAR MESA</button>
                 <button onclick="unirseS()" style="flex:1; background:var(--card); color:var(--sky); border:1px solid var(--sky);">UNIRSE A MESA</button>
@@ -76,13 +102,21 @@
         <div id="juegoOnline" style="display:none;">
             <div class="mesa">
                 <div id="txtTurno" class="turn-badge">TURNO: --</div>
+                <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:var(--gold); font-size:0.85rem;" id="txtRondaNombre">ROUNDS</div>
                 <div class="slots">
                     <div class="card-box deck" onclick="play('robar_mazo')">MAZO<br>ROBAR</div>
                     <div id="pozoCard" class="card-box discard" onclick="play('robar_pozo')">--</div>
                 </div>
                 <div id="manoContainer" class="hand"></div>
             </div>
-            <button id="btnTirar" style="display:none; background:var(--danger); color:#fff;" onclick="play('tirar')">TIRAR CARTA SELECCIONADA</button>
+
+            <div class="workspace" id="workspaceMesa">
+                <h3 style="font-size:0.7rem; margin:0 0 10px; color:var(--text); text-align:center;">ÁREA DE EXTENSIÓN PARA PREPARAR BAJADA</h3>
+                <div id="slotsWorkspace"></div>
+                <button class="btn-sky" style="margin-top:10px; background:var(--sky); color:#000;" onclick="intentarBajarse()">VALIDAR COMPROBACIÓN Y BAJARSE</button>
+            </div>
+
+            <button id="btnTirar" style="display:none; background:var(--danger); color:#fff;" onclick="play('tirar')">DESCARTAR CARTA SELECCIONADA</button>
             <p id="logO" style="font-size:0.6rem; color:var(--sky); text-align:center; margin-top:10px; font-style:italic;"></p>
             <button style="background:#334155; color:#fff; margin-top:10px;" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
@@ -90,7 +124,7 @@
 
     <div id="areaFisica" class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="font-size:0.75rem; color:var(--accent); margin:0;">TABLERO DE PUNTOS</h2>
+            <h2 style="font-size:0.75rem; color:var(--accent); margin:0;">TABLERO DE ANOTACIÓN DIRECTA</h2>
             <button id="btnFisico" style="width:auto; padding:8px 15px; background:var(--sky); color:#000;" onclick="controlPartida()">Iniciar</button>
         </div>
         <div id="zonaTabla" style="display:none; margin-top:20px; overflow-x:auto;">
@@ -110,41 +144,52 @@
             <button onclick="addP()" style="width:50px; background:var(--sky); color:#000;">+</button>
         </div>
         <div id="emojiPop" class="emoji-pop">
-            <div onclick="setE('👤')">👤</div><div onclick="setE('🦁')">🦁</div><div onclick="setE('🥷')">🥷</div><div onclick="setE('🤖')">🤖</div><div onclick="setE('🦄')">🦄</div>
-            <div onclick="setE('🔥')">🔥</div><div onclick="setE('💎')">💎</div><div onclick="setE('🦊')">🦊</div><div onclick="setE('🐯')">🐯</div><div onclick="setE('🍀')">🍀</div>
+            <div onclick="setE('👤')">👤</div><div onclick="setE('🦁')">🦁</div><div onclick="setE('🥷')">🥷</div><div onclick="setE('🤖')">🤖</div><div onclick="setE('💎')">💎</div>
+            <div onclick="setE('🔥')">🔥</div><div onclick="setE('🦊')">🦊</div><div onclick="setE('🍀')">🍀</div><div onclick="setE('🐙')">🐙</div><div onclick="setE('🦄')">🦄</div>
         </div>
         <div id="listaTodos" style="margin-top:10px; opacity:0.6; display:flex; gap:5px; flex-wrap:wrap;"></div>
     </div>
 
-    <details class="card">
-        <summary style="cursor:pointer; color:var(--accent); font-weight:bold; font-size:0.8rem;">KPIs E HISTORIAL</summary>
-        <div id="histList" style="margin-top:15px;"></div>
-    </details>
+    <div class="card">
+        <h2>HISTORIAL DE AUDITORÍA</h2>
+        <div id="histList"></div>
+    </div>
 </div>
 
 <script>
     const API = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec";
-    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Tríos 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
+    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
+    
+    const CONFIG_RONDAS = [
+        { nombre: "2 Trios", req: ["trio", "trio"] },
+        { nombre: "1 Trío 1 Escala", req: ["trio", "escala"] },
+        { nombre: "2 Escalas", req: ["escala", "escala"] },
+        { nombre: "3 Trios", req: ["trio", "trio", "trio"] },
+        { nombre: "2 Trios 1 Escala", req: ["trio", "trio", "escala"] },
+        { nombre: "1 Trío 2 Escalas", req: ["trio", "escala", "escala"] },
+        { nombre: "3 Escalas", req: ["escala", "escala", "escala"] },
+        { nombre: "4 Trios", req: ["trio", "trio", "trio", "trio"] },
+        { nombre: "Escala Sucia", req: ["escala_sucia"] },
+        { nombre: "Escala Real", req: ["escala_real"] }
+    ];
 
-    let st = { modo: 'fisico', sala: null, me: null, selC: null, activo: false, ts: null, pSelected: [], poll: null, emoji: '👤', manoLocal: [], jugadoresDB: [] };
+    let st = { modo: 'fisico', sala: null, me: null, selC: null, selIndex: null, activo: false, ts: null, pSelected: [], poll: null, emoji: '👤', manoLocal: [], jugadoresDB: [], workspaceCartas: [[],[],[],[]], rondaIdxActiva: 0 };
 
     window.onload = async () => {
         showL(true);
         try {
             const r = await fetch(API);
             const d = await r.json();
-            st.jugadoresDB = d.jugadores;
+            st.jugadoresDB = d.jugadores || [];
             renderChips();
-            renderHist(d.historial);
-        } catch(e) { alert("Error de conexión inicial"); }
+            renderHist(d.historial || []);
+        } catch(e) { alert("Error de conexión"); }
         showL(false);
     };
 
     function renderChips() {
         const c = document.getElementById('chipsGlobal');
-        c.innerHTML = st.jugadoresDB.map(j => `
-            <div class="chip ${st.pSelected.includes(j.nombre) ? 'active' : ''}" onclick="toggleP('${j.nombre}')">${j.nombre}</div>
-        `).join('');
+        c.innerHTML = st.jugadoresDB.map(j => `<div class="chip ${st.pSelected.includes(j.nombre) ? 'active' : ''}" onclick="toggleP('${j.nombre}')">${j.nombre}</div>`).join('');
         document.getElementById('listaTodos').innerHTML = st.jugadoresDB.map(j => `<div class="chip" style="opacity:0.5;">${j.nombre} ✏️</div>`).join('');
     }
 
@@ -164,20 +209,22 @@
         if(m==='fisico') clearInterval(st.poll);
     }
 
-    // ONLINE LOGIC
+    // MULTIPLAYER LIVE ONLINE
     async function crearS() {
         const id = document.getElementById('salaId').value.trim();
-        if(!id || st.pSelected.length < 2) return alert("PASO 1: Selecciona al menos 2 jugadores arriba.\nPASO 2: Escribe un código de mesa.");
+        const rIdx = parseInt(document.getElementById('selectRondaHost').value);
+        if(!id || st.pSelected.length < 2) return alert("Selecciona mínimo 2 jugadores arriba y pon código de mesa.");
         showL(true);
+        st.rondaIdxActiva = rIdx;
         let pts = {}; st.pSelected.forEach(p => pts[p] = Array(RONDAS.length).fill(0));
-        await fetch(API, { method:'POST', body: JSON.stringify({ accion:"crear_sala", salaId: id, host: "Tú", jugadores: st.pSelected, puntos: pts }), headers:{"Content-Type":"text/plain"} });
-        alert("¡Mesa " + id + " creada!");
+        await fetch(API, { method:'POST', body: JSON.stringify({ accion:"crear_sala", salaId: id, host: "Tú", jugadores: st.pSelected, puntos: pts, rondaIdx: rIdx }), headers:{"Content-Type":"text/plain"} });
+        alert("Mesa virtual creada.");
         unirseS();
     }
 
     async function unirseS() {
         const id = document.getElementById('salaId').value.trim();
-        if(!id) return alert("Ingresa ID Mesa");
+        if(!id) return alert("Escribe el ID Mesa.");
         showL(true);
         const r = await fetch(`${API}?salaId=${id}`);
         const d = await r.json();
@@ -193,7 +240,7 @@
         document.getElementById('setupOnline').style.display = 'none';
         document.getElementById('juegoOnline').style.display = 'block';
         document.getElementById('zonaTabla').style.display = 'block';
-        st.poll = setInterval(sync, 4000);
+        st.poll = setInterval(sync, 4000); // Latido de sincronización en background sin bloqueos
         sync();
     }
 
@@ -203,23 +250,39 @@
             const r = await fetch(`${API}?salaId=${st.sala}`);
             const d = await r.json();
             const g = d.game;
-            const miT = g.jugadores[g.turno] === st.me;
-            document.getElementById('txtTurno').innerText = `TURNO: ${g.jugadores[g.turno]} ${miT?'(TÚ)':''}`;
+            st.rondaIdxActiva = g.rondaIdx || 0;
+            const miTurno = g.jugadores[g.turno] === st.me;
+            
+            document.getElementById('txtTurno').innerText = `TURNO: ${g.jugadores[g.turno]} ${miTurno?'(TÚ)':''}`;
+            document.getElementById('txtRondaNombre').innerText = `ROUND ACTUAL: ${CONFIG_RONDAS[st.rondaIdxActiva].nombre}`;
             document.getElementById('logO').innerText = g.log;
             document.getElementById('pozoCard').innerText = g.pozo[0].txt;
             document.getElementById('pozoCard').style.color = g.pozo[0].color === 'red' ? 'var(--danger)' : (g.pozo[0].color === 'blue' ? '#1d4ed8' : '#000');
             
             const manoN = g.manos[st.me] || [];
-            if (st.manoLocal.length !== manoN.length) { st.manoLocal = manoN; }
-            else {
-                const idsL = st.manoLocal.map(c => c.id);
-                manoN.forEach(cn => { if(!idsL.includes(cn.id)) st.manoLocal.push(cn); });
+            
+            // Re-organización inteligente respetando el orden local del jugador
+            if (st.manoLocal.length + obtenerTotalWorkspace() !== manoN.length) {
+                st.manoLocal = manoN;
+                st.workspaceCartas = [[],[],[],[]];
+            } else {
+                // Sincronizar adiciones/sustracciones manteniendo el reordenamiento del usuario
+                let idsLocalesTotales = [...st.manoLocal, ...st.workspaceCartas.flat()].map(c => c.id);
+                manoN.forEach(cn => {
+                    if(!idsLocalesTotales.includes(cn.id)) st.manoLocal.push(cn);
+                });
             }
-            renderHand(g.ultimaRecogidaId, miT, g.fase);
+            
+            renderHand(g.ultimaRecogidaId, miTurno, g.fase);
+            renderWorkspaceSlots(miTurno, g.fase);
             st.pSelected = d.jugadores;
             renderTable(d.puntos);
         } catch(e) {}
-        setTimeout(() => document.getElementById('heartbeat').style.display = 'none', 500);
+        setTimeout(() => document.getElementById('heartbeat').style.display = 'none', 400);
+    }
+
+    function obtenerTotalWorkspace() {
+        return st.workspaceCartas.reduce((acc, current) => acc + current.length, 0);
     }
 
     function renderHand(newId, miT, fase) {
@@ -229,36 +292,166 @@
             const div = document.createElement('div');
             div.className = `card-v ${c.color} ${st.selC && st.selC.id === c.id ? 'sel' : ''} ${c.id === newId ? 'new-card' : ''}`;
             div.innerHTML = c.txt;
-            div.onclick = () => {
-                if (!st.selC) { st.selC = c; st.selIndex = idx; }
-                else {
-                    if (st.selC.id === c.id) { st.selC = null; }
-                    else {
-                        const temp = st.manoLocal[st.selIndex];
-                        st.manoLocal[st.selIndex] = st.manoLocal[idx];
-                        st.manoLocal[idx] = temp;
-                        st.selC = null;
-                        fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo:'reordenar', user: st.me, nuevaMano: st.manoLocal }), headers:{"Content-Type":"text/plain"} });
-                    }
-                }
-                renderHand(null, miT, fase);
-            };
+            div.onclick = () => handleC(c, idx, miT, fase, false, null);
             container.appendChild(div);
         });
         document.getElementById('btnTirar').style.display = (miT && fase === 'tirar' && st.selC) ? 'block' : 'none';
+    }
+
+    // Renderizado dinámico de la Extensión del Tablero
+    function renderWorkspaceSlots(miT, fase) {
+        const container = document.getElementById('slotsWorkspace');
+        container.innerHTML = '';
+        const reqs = CONFIG_RONDAS[st.rondaIdxActiva].req;
+        
+        reqs.forEach((tipoReq, gIdx) => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'workspace-group';
+            groupDiv.onclick = () => {
+                // Si hay una carta seleccionada de la mano, la movemos aquí
+                if(st.selC && st.selIndex !== null && !st.selFromWorkspace) {
+                    st.workspaceCartas[gIdx].push(st.selC);
+                    st.manoLocal.splice(st.selIndex, 1);
+                    st.selC = null; st.selIndex = null;
+                    renderHand(null, miT, fase);
+                    renderWorkspaceSlots(miT, fase);
+                }
+            };
+
+            const title = document.createElement('div');
+            title.className = 'workspace-title';
+            title.innerText = `GRUPO ${gIdx + 1}: ${tipoReq.toUpperCase()}`;
+            groupDiv.appendChild(title);
+
+            const cardsFlex = document.createElement('div');
+            cardsFlex.style.cssText = "display:flex; gap:5px; flex-wrap:wrap;";
+
+            st.workspaceCartas[gIdx].forEach((c, cIdx) => {
+                const cDiv = document.createElement('div');
+                cDiv.className = `card-v ${c.color} ${st.selC && st.selC.id === c.id ? 'sel' : ''}`;
+                cDiv.innerHTML = c.txt;
+                cDiv.onclick = (e) => {
+                    e.stopPropagation(); // Evitar gatillar el click del grupo
+                    handleC(c, cIdx, miT, fase, true, gIdx);
+                };
+                cardsFlex.appendChild(cDiv);
+            });
+
+            groupDiv.appendChild(cardsFlex);
+            container.appendChild(groupDiv);
+        });
+    }
+
+    function handleC(card, idx, miT, fase, fromWorkspace, groupIdx) {
+        if (!st.selC) {
+            st.selC = card; st.selIndex = idx; st.selFromWorkspace = fromWorkspace; st.selGroupIdx = groupIdx;
+        } else {
+            if (st.selC.id === card.id) {
+                st.selC = null; // Deseleccionar
+            } else {
+                if(!fromWorkspace && !st.selFromWorkspace) {
+                    // Reordenar local manual por permutación directa
+                    const temp = st.manoLocal[st.selIndex];
+                    st.manoLocal[st.selIndex] = st.manoLocal[idx];
+                    st.manoLocal[idx] = temp;
+                    st.selC = null;
+                    fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo:'reordenar', user: st.me, nuevaMano: [...st.manoLocal, ...st.workspaceCartas.flat()] }), headers:{"Content-Type":"text/plain"} });
+                } else if(fromWorkspace && st.selFromWorkspace && st.selGroupIdx === groupIdx) {
+                    // Permutar dentro del mismo grupo de la mesa de extensión
+                    const temp = st.workspaceCartas[groupIdx][st.selIndex];
+                    st.workspaceCartas[groupIdx][st.selIndex] = st.workspaceCartas[groupIdx][idx];
+                    st.workspaceCartas[groupIdx][idx] = temp;
+                    st.selC = null;
+                } else if(!fromWorkspace && st.selFromWorkspace) {
+                    // Devolver del Workspace a la mano local
+                    st.manoLocal.push(st.selC);
+                    st.workspaceCartas[st.selGroupIdx].splice(st.selIndex, 1);
+                    st.selC = null;
+                }
+            }
+        }
+        renderHand(null, miT, fase);
+        renderWorkspaceSlots(miT, fase);
+    }
+
+    // INTELIGENCIA DE COMPROBACIÓN REGLAMENTARIA PARA JUGAR ONLINE
+    function intentarBajarse() {
+        const reqs = CONFIG_RONDAS[st.rondaIdxActiva].req;
+        let todasValidas = true;
+
+        reqs.forEach((tipo, idx) => {
+            const grupoCartas = st.workspaceCartas[idx];
+            if (tipo === 'trio' && !comprobarTrio(grupoCartas)) todasValidas = false;
+            if (tipo === 'escala' && !comprobarEscala(grupoCartas, false)) todasValidas = false;
+            if (tipo === 'escala_sucia' && !comprobarEscala(grupoCartas, true)) todasValidas = false;
+            if (tipo === 'escala_real' && !comprobarEscala(grupoCartas, false, true)) todasValidas = false;
+        });
+
+        if (todasValidas) {
+            alert("¡Bajada Reglamentaria Válida! Tus cartas cumplen con las reglas del Round.");
+            fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo:'bajar_mesón', user: st.me, nuevaMano: st.manoLocal }), headers:{"Content-Type":"text/plain"} });
+            st.workspaceCartas = [[],[],[],[]];
+            sync();
+        } else {
+            alert("Bajada Inválida. Revisa las combinaciones de tus grupos según la ronda actual.");
+        }
+    }
+
+    function comprobarTrio(cartas) {
+        if (cartas.length < 3) return false;
+        let netas = cartas.filter(c => c.txt !== 'JK');
+        if (netas.length === 0) return true; // Solo comodines
+        let num = netas[0].txt.replace(/[♥♦♣♠]/, '');
+        return netas.every(c => c.txt.replace(/[♥♦♣♠]/, '') === num);
+    }
+
+    function comprobarEscala(cartas, esSucia, esReal) {
+        let minReq = (esSucia || esReal) ? 13 : 4;
+        if (cartas.length < minReq) return false;
+        
+        let netas = cartas.filter(c => c.txt !== 'JK');
+        if (netas.length === 0) return true;
+        
+        if (!esSucia) {
+            let pinta = netas[0].txt.slice(-1);
+            if (!netas.every(c => c.txt.slice(-1) === pinta)) return false;
+        }
+        if (esReal && cartas.some(c => c.txt === 'JK')) return false; // Escala Real no permite comodines
+
+        const mapValores = (txt, aceHigh) => {
+            let val = txt.replace(/[♥♦♣♠]/, '');
+            if (val === 'A') return aceHigh ? 14 : 1;
+            if (val === 'K') return 13;
+            if (val === 'Q') return 12;
+            if (val === 'J') return 11;
+            return parseInt(val);
+        };
+
+        const verificarConAs = (aceHigh) => {
+            let nums = netas.map(c => mapValores(c.txt, aceHigh)).sort((a,b)=>a-b);
+            // Evitar duplicados
+            if (new Set(nums).size !== nums.length) return false;
+            let gap = 0;
+            for(let i=0; i < nums.length - 1; i++) {
+                gap += (nums[i+1] - nums[i] - 1);
+            }
+            return gap <= cartas.filter(c => c.txt === 'JK').length;
+        };
+
+        return verificarConAs(true) || verificarConAs(false);
     }
 
     async function play(tipo) {
         if(tipo === 'tirar' && !st.selC) return;
         showL(true);
         await fetch(API, { method:'POST', body: JSON.stringify({ accion:"accion_juego", salaId: st.sala, tipo, user: st.me, cartaId: st.selC ? st.selC.id : null }), headers:{"Content-Type":"text/plain"} });
-        st.selC = null; await sync(); showL(false);
+        st.selC = null; st.selIndex = null; await sync(); showL(false);
     }
 
-    // FISICO LOGIC
+    // REGISTRO KPI / MÉTODOS FÍSICOS
     function controlPartida() {
         if(!st.activo) {
-            if(st.pSelected.length < 2) return alert("Selecciona jugadores arriba");
+            if(st.pSelected.length < 2) return alert("Selecciona chips arriba.");
             st.activo = true; st.ts = Date.now();
             document.getElementById('btnFisico').innerText = "Finalizar";
             document.getElementById('btnFisico').style.background = 'var(--danger)';
@@ -271,7 +464,7 @@
 
     function renderTable(ptsCargados = null) {
         document.getElementById('tHead').innerHTML = `<tr><th>Ronda</th>${st.pSelected.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
-        document.getElementById('tBody').innerHTML = RONDAS.map((r, ri) => `<tr><td style="text-align:left;">${r}</td>${st.pSelected.map(n => `<td><input type="number" class="score-in" data-p="${n}" value="${ptsCargados?ptsCargados[n][ri]:0}" oninput="sum()"></td>`).join('')}</tr>`).join('');
+        document.getElementById('tBody').innerHTML = RONDAS.map((r, ri) => `<tr><td style="text-align:left; font-weight:600;">${r}</td>${st.pSelected.map(n => `<td><input type="number" class="score-in" data-p="${n}" value="${ptsCargados?ptsCargados[n][ri]:0}" oninput="sum()"></td>`).join('')}</tr>`).join('');
         document.getElementById('tFoot').innerHTML = `<tr><td>TOTAL</td>${st.pSelected.map(n => `<td id="tot_${n}">0</td>`).join('')}</tr>`;
         sum();
     }
@@ -286,7 +479,7 @@
 
     async function finalizar() {
         let r = st.pSelected.map(n => ({ n, s: parseInt(document.getElementById(`tot_${n}`).innerText) })).sort((a,b)=>a.s - b.s);
-        if(!confirm(`🏆 Ganador: ${r[0].n}. ¿Guardar resultados?`)) return;
+        if(!confirm(`🏆 El ganador es ${r[0].n}. ¿Guardar KPI?`)) return;
         showL(true);
         let tabla = { jugadores: st.pSelected, rondas: RONDAS, puntos: {} };
         st.pSelected.forEach(n => tabla.puntos[n] = Array.from(document.querySelectorAll(`[data-p="${n}"]`)).map(i => parseInt(i.value)||0));
@@ -298,7 +491,47 @@
         location.reload();
     }
 
-    // PROFILE LOGIC
+    // DEPLOY DE TABLAS BAJO SELECCIÓN DEL GANADOR EN HISTORIAL
+    function renderHist(h) {
+        const z = document.getElementById('histList');
+        if(!h || h.length === 0) { z.innerHTML = "<p style='text-align:center; opacity:0.5;'>Sin datos.</p>"; return; }
+        
+        z.innerHTML = h.map((x, i) => {
+            let mini = '';
+            if(x.detalles) {
+                mini = `<div id="det_hist_${i}" class="table-wrap" style="display:none; margin-top:10px;"><table class="k-table"><thead><tr><th>Fase</th>`;
+                x.detalles.jugadores.forEach(j => mini += `<th>${j.split(' ')[1]||j}</th>`);
+                mini += `</tr></thead><tbody>`;
+                x.detalles.rondas.forEach((r, ri) => {
+                    mini += `<tr><td style="text-align:left;">${r}</td>`;
+                    x.detalles.jugadores.forEach(j => mini += `<td>${x.detalles.puntos[j][ri]}</td>`);
+                    mini += `</tr>`;
+                });
+                mini += `</tbody></table></div>`;
+            }
+
+            return `
+                <div class="hist-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span>Ganador: </span>
+                            <button class="hist-winner-btn" onclick="toggleDetallesTabla(${i})">🏆 ${x.ganador}</button>
+                        </div>
+                        <span style="font-weight:bold; color:var(--sky);">${x.puntaje} pts</span>
+                    </div>
+                    <p style="font-size:0.65rem; opacity:0.5; margin:5px 0;">Fecha: ${x.fecha} | Duración: ${x.duracion || 'N/A'}</p>
+                    ${mini}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleDetallesTabla(idx) {
+        const el = document.getElementById(`det_hist_${idx}`);
+        if(el) el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // PROFILE MANAGEMENT
     function tE() { const p = document.getElementById('emojiPop'); p.style.display = (p.style.display==='grid')?'none':'grid'; }
     function setE(e) { st.emoji = e; document.getElementById('emojiBtn').innerText = e; tE(); }
     async function addP() {
@@ -308,11 +541,6 @@
         location.reload();
     }
     function showL(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-    function renderHist(h) {
-        const z = document.getElementById('histList');
-        if(!h || h.length === 0) { z.innerHTML = "<p style='text-align:center; opacity:0.5;'>Sin datos.</p>"; return; }
-        z.innerHTML = h.map(x => `<div class="hist-card"><b>🏆 ${x.ganador}</b> | ${x.puntaje} pts<br><small>${x.fecha} (${x.duracion})</small></div>`).join('');
-    }
 </script>
 </body>
 </html>
