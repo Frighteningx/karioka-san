@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karioka Pro • Auditoría Dark</title>
+    <title>Karioka Pro • Auditoría Detallada</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -15,7 +15,7 @@
             --text-dim: #94a3b8;
             --danger: #f43f5e;
             --success: #10b981;
-            --border: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.1);
         }
 
         body {
@@ -41,22 +41,25 @@
         .emoji-option { font-size: 1.5rem; padding: 8px; cursor: pointer; border-radius: 8px; transition: 0.2s; }
         .emoji-option:hover { background: var(--accent-glow); }
 
-        /* --- TABLAS --- */
-        .table-wrapper { overflow-x: auto; border-radius: 12px; background: #0f172a; padding: 10px; }
+        /* --- TABLAS PRINCIPALES --- */
+        .table-wrapper { overflow-x: auto; border-radius: 12px; background: #0b1120; padding: 12px; border: 1px solid var(--border); }
         .karioka-table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        .karioka-table th { padding: 12px 10px; font-size: 0.7rem; color: var(--text-dim); border-bottom: 2px solid #334155; text-transform: uppercase; }
-        .ronda-name { text-align: left; font-size: 0.8rem; color: var(--text); width: 150px; }
-        .score-input { width: 55px !important; text-align: center; padding: 5px !important; background: #1e293b !important; color: white; border: 1px solid #334155; border-radius: 5px; }
-        .total-row { font-weight: 800; color: var(--accent); font-size: 1.1rem; }
+        .karioka-table th { padding: 12px; font-size: 0.75rem; color: var(--text-dim); border-bottom: 2px solid #334155; text-transform: uppercase; }
+        .ronda-name { text-align: left; font-size: 0.85rem; color: var(--text); width: 160px; }
+        .score-input { width: 60px !important; text-align: center; padding: 8px !important; background: #1e293b !important; color: white; border: 1px solid #334155; border-radius: 6px; }
 
-        /* --- HISTORIAL --- */
-        details summary { padding: 15px; background: var(--card); border-radius: 12px; cursor: pointer; font-weight: bold; color: var(--accent); list-style: none; border: 1px solid var(--border); }
+        /* --- HISTORIAL Y TABLAS DETALLADAS (LA CORRECCIÓN) --- */
+        details summary { padding: 15px; background: var(--card); border-radius: 12px; cursor: pointer; font-weight: bold; color: var(--accent); border: 1px solid var(--border); outline: none; }
         .history-content { background: #0f172a; padding: 15px; border-radius: 0 0 12px 12px; border: 1px solid var(--border); border-top: none; }
-        .history-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--accent); }
+        .history-card { background: var(--card); border-radius: 15px; padding: 18px; margin-bottom: 20px; border-left: 5px solid var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .history-card.winner-highlight { border-left-color: var(--success); }
-        .mini-table { width: 100%; font-size: 0.7rem; margin-top: 10px; border-collapse: collapse; color: var(--text-dim); }
-        .mini-table th, .mini-table td { border: 1px solid #334155; padding: 4px; text-align: center; }
-        .mini-table .win-col { background: rgba(16, 185, 129, 0.1); color: var(--success); font-weight: bold; }
+        
+        .mini-table-container { margin-top: 15px; overflow-x: auto; border-radius: 8px; border: 1px solid #334155; background: #0b1120; }
+        .mini-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; color: var(--text); }
+        .mini-table th, .mini-table td { border: 1px solid #334155; padding: 10px 8px; text-align: center; }
+        .mini-table th { background: #1e293b; color: var(--text-dim); font-size: 0.7rem; }
+        .mini-table .win-col { background: rgba(16, 185, 129, 0.15) !important; color: var(--success); font-weight: bold; }
+        .mini-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
 
         .loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -69,7 +72,7 @@
 <div id="globalLoader" class="loader">
     <div style="text-align:center;">
         <div style="border: 4px solid var(--accent); border-top: 4px solid transparent; width: 45px; height: 45px; border-radius: 50%; animation: spin 0.8s linear infinite; margin: auto;"></div>
-        <p style="margin-top:15px; font-weight: 600;">Procesando datos...</p>
+        <p style="margin-top:15px; font-weight: 600;">Sincronizando la mesa...</p>
     </div>
 </div>
 
@@ -78,17 +81,16 @@
 
     <div class="card">
         <div class="header-row">
-            <h2>Partida en Curso</h2>
+            <h2>Partida en Vivo</h2>
             <button onclick="finalizarJuego()" style="background: var(--success); color: white;">Finalizar y Guardar</button>
         </div>
-        <div id="chipsContainer" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
-        
+        <div id="chipsContainer" class="player-list" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
         <div id="gameZone" style="display:none; margin-top:20px;">
             <div class="table-wrapper">
                 <table class="karioka-table">
                     <thead><tr id="tableHeader"></tr></thead>
                     <tbody id="tableBody"></tbody>
-                    <tfoot><tr id="tableFooter" class="total-row"></tr></tfoot>
+                    <tfoot><tr id="tableFooter" class="total-row" style="color:var(--accent); font-weight:bold; font-size:1.2rem; background: rgba(56, 189, 248, 0.05);"></tr></tfoot>
                 </table>
             </div>
         </div>
@@ -106,8 +108,8 @@
                 <div class="emoji-option" onclick="selectEmoji('🥷')">🥷</div><div class="emoji-option" onclick="selectEmoji('🤡')">🤡</div>
                 <div class="emoji-option" onclick="selectEmoji('👽')">👽</div><div class="emoji-option" onclick="selectEmoji('🤖')">🤖</div>
                 <div class="emoji-option" onclick="selectEmoji('🦁')">🦁</div><div class="emoji-option" onclick="selectEmoji('🦄')">🦄</div>
-                <div class="emoji-option" onclick="selectEmoji('🐲')">🐲</div><div class="emoji-option" onclick="selectEmoji('🔥')">🔥</div>
-                <div class="emoji-option" onclick="selectEmoji('💎')">💎</div><div class="emoji-option" onclick="selectEmoji('🍀')">🍀</div>
+                <div class="emoji-option" onclick="selectEmoji('🔥')">🔥</div><div class="emoji-option" onclick="selectEmoji('💎')">💎</div>
+                <div class="emoji-option" onclick="selectEmoji('🍀')">🍀</div><div class="emoji-option" onclick="selectEmoji('🦊')">🦊</div>
             </div>
             <input type="text" id="playerName" placeholder="Nombre...">
             <button id="playerMainBtn" onclick="savePlayer()">Añadir</button>
@@ -121,9 +123,9 @@
     </div>
 
     <details>
-        <summary>Historial de Juegos Completos</summary>
+        <summary>Historial de Partidas Completas</summary>
         <div class="history-content" id="historyList">
-            <p style="color: var(--text-dim); text-align: center; padding: 20px;">No hay partidas registradas.</p>
+            <p style="color: var(--text-dim); text-align: center; padding: 20px;">No hay datos para mostrar.</p>
         </div>
     </details>
 </div>
@@ -171,7 +173,6 @@
         const chips = document.getElementById('chipsContainer');
         const list = document.getElementById('registeredPlayersList');
         chips.innerHTML = ''; list.innerHTML = '';
-
         jugadores.forEach(j => {
             const chip = document.createElement('div');
             chip.className = `player-chip ${seleccionados.includes(j.nombre) ? 'active' : ''}`;
@@ -201,7 +202,6 @@
         const zone = document.getElementById('gameZone');
         if (seleccionados.length === 0) { zone.style.display = 'none'; return; }
         zone.style.display = 'block';
-
         document.getElementById('tableHeader').innerHTML = '<th>Ronda</th>' + seleccionados.map(n => `<th>${n.split(' ')[1] || n}</th>`).join('');
         document.getElementById('tableBody').innerHTML = RONDAS.map((r, ri) => `<tr><td class="ronda-name">${r}</td>${seleccionados.map(n => `<td><input type="number" class="score-input" data-player="${n}" data-ronda="${ri}" oninput="calcTotal()"></td>`).join('')}</tr>`).join('');
         document.getElementById('tableFooter').innerHTML = '<td>TOTAL</td>' + seleccionados.map(n => `<td id="total_${n}">0</td>`).join('');
@@ -228,25 +228,15 @@
 
     async function finalizarJuego() {
         if(seleccionados.length < 2) return;
-        
-        // Recolectar matriz completa de puntos
-        let tablaCompleta = {
-            rondas: RONDAS,
-            jugadores: seleccionados,
-            puntos: {}
-        };
-
+        let tablaCompleta = { rondas: RONDAS, jugadores: seleccionados, puntos: {} };
         seleccionados.forEach(n => {
             tablaCompleta.puntos[n] = [];
             document.querySelectorAll(`.score-input[data-player="${n}"]`).forEach(input => {
                 tablaCompleta.puntos[n].push(parseInt(input.value) || 0);
             });
         });
-
         let res = seleccionados.map(n => ({ nombre: n, score: parseInt(document.getElementById(`total_${n}`).innerText) })).sort((a,b) => a.score - b.score);
-        
-        if(!confirm(`🏆 El ganador es ${res[0].nombre}. ¿Guardar juego completo en el historial?`)) return;
-
+        if(!confirm(`🏆 El ganador es ${res[0].nombre}. ¿Guardar juego completo?`)) return;
         showLoader(true);
         await fetch(API_URL, {
             method: 'POST',
@@ -257,7 +247,7 @@
                 ganador: res[0].nombre,
                 perdedores: res.slice(1).map(r => r.nombre),
                 puntajeGanador: res[0].score,
-                tablaCompleta: tablaCompleta // Enviamos el JSON
+                tablaCompleta: tablaCompleta 
             })
         });
         seleccionados = [];
@@ -269,41 +259,39 @@
         if (historial.length === 0) return;
 
         container.innerHTML = historial.map(h => {
-            const sumPuntos = h.detalles ? Object.values(h.detalles.puntos).reduce((acc, curr) => acc + curr.reduce((a, b) => a + b, 0), 0) : 1;
-            const winPct = h.detalles ? Math.round((h.puntaje / sumPuntos) * 100) : 0;
-
             let miniTable = '';
             if(h.detalles) {
-                miniTable = `<div class="table-wrapper"><table class="mini-table"><thead><tr><th>Ronda</th>`;
+                miniTable = `<div class="mini-table-container"><table class="mini-table"><thead><tr><th>Fase</th>`;
                 h.detalles.jugadores.forEach(j => {
                     miniTable += `<th class="${j === h.ganador ? 'win-col' : ''}">${j.split(' ')[1] || j}</th>`;
                 });
                 miniTable += `</tr></thead><tbody>`;
-                
                 h.detalles.rondas.forEach((r, ri) => {
-                    miniTable += `<tr><td>${r}</td>`;
+                    miniTable += `<tr><td style="text-align:left; color:var(--text-dim); font-size:0.7rem;">${r}</td>`;
                     h.detalles.jugadores.forEach(j => {
                         miniTable += `<td class="${j === h.ganador ? 'win-col' : ''}">${h.detalles.puntos[j][ri]}</td>`;
                     });
                     miniTable += `</tr>`;
                 });
-                
-                miniTable += `<tr style="font-weight:bold; color:var(--text);"><td>TOTAL</td>`;
+                miniTable += `<tr style="font-weight:bold; background: rgba(56, 189, 248, 0.05);"><td>TOTAL</td>`;
                 h.detalles.jugadores.forEach(j => {
                     const totalJ = h.detalles.puntos[j].reduce((a,b) => a+b, 0);
                     miniTable += `<td class="${j === h.ganador ? 'win-col' : ''}">${totalJ}</td>`;
                 });
                 miniTable += `</tr></tbody></table></div>`;
+            } else {
+                miniTable = `<p style="font-size:0.7rem; color:var(--danger); margin-top:10px;">Sin detalles (Juego antiguo)</p>`;
             }
 
             return `
                 <div class="history-card ${h.ganador ? 'winner-highlight' : ''}">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="color:var(--success); font-size:1rem;">🏆 ${h.ganador}</strong>
-                        <span style="background:var(--accent-glow); color:var(--accent); padding:2px 8px; border-radius:5px; font-size:0.7rem;">Dominio: ${100 - winPct}%</span>
+                        <strong style="color:var(--success); font-size:1.1rem;">🏆 ${h.ganador}</strong>
+                        <span style="background:var(--accent-glow); color:var(--accent); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:bold;">${h.puntaje} pts</span>
                     </div>
-                    <div style="font-size: 0.65rem; color: var(--text-dim); margin: 5px 0;">
-                        ⏱ ${h.duracion} | ${h.fin}
+                    <div style="font-size: 0.7rem; color: var(--text-dim); margin: 8px 0; display:flex; justify-content:space-between;">
+                        <span>⏱ ${h.duracion}</span>
+                        <span>${h.fin}</span>
                     </div>
                     ${miniTable}
                 </div>
@@ -319,11 +307,11 @@
             data: {
                 labels: jugadores.map(j => j.nombre),
                 datasets: [
-                    { label: 'Wins', data: jugadores.map(j => j.ganados), backgroundColor: '#10b981' },
-                    { label: 'Losses', data: jugadores.map(j => j.perdidos), backgroundColor: '#f43f5e' }
+                    { label: 'Wins', data: jugadores.map(j => j.ganados), backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Losses', data: jugadores.map(j => j.perdidos), backgroundColor: '#f43f5e', borderRadius: 4 }
                 ]
             },
-            options: { maintainAspectRatio: false, scales: { y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { stacked: true, grid: { display: false } } } }
+            options: { maintainAspectRatio: false, plugins: { legend: { labels: { color: '#f1f5f9' } } }, scales: { y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { stacked: true, grid: { display: false }, ticks: { color: '#f1f5f9' } } } }
         });
     }
 
