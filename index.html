@@ -1,85 +1,226 @@
-<style>
-    .hand-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; justify-content: center; }
-    .card-virtual {
-        width: 50px; height: 75px; background: white; border-radius: 6px;
-        color: #1e293b; display: flex; flex-direction: column; align-items: center;
-        justify-content: center; font-weight: bold; border: 2px solid #cbd5e1;
-        cursor: pointer; transition: 0.2s; position: relative;
-    }
-    .card-virtual:hover { transform: translateY(-10px); border-color: var(--accent); }
-    .card-virtual.red { color: #f43f5e; }
-    .card-virtual.selected { border: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
-    
-    .table-center { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
-    .deck-pile { width: 60px; height: 90px; background: #334155; border: 2px dashed var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--accent); text-align: center; cursor: pointer; }
-    .discard-pile { width: 60px; height: 90px; background: white; border: 2px solid #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1e293b; }
-</style>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karioka Pro • Ultimate</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f1f5f9; --text-dim: #94a3b8; --success: #10b981; --danger: #f43f5e; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 15px; padding-bottom: 100px; }
+        .container { max-width: 850px; margin: 0 auto; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        h1 { text-align: center; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Botones y Inputs */
+        button { background: var(--accent); color: var(--bg); border: none; padding: 12px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 10px; width: 100%; outline: none; }
+        
+        /* Chips de Jugadores */
+        .chip { display: inline-flex; align-items: center; gap: 8px; background: #334155; padding: 8px 15px; border-radius: 20px; cursor: pointer; margin: 5px; border: 1px solid transparent; }
+        .chip.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.2); color: var(--accent); }
+        
+        /* Tabla Karioka */
+        .table-container { overflow-x: auto; margin-top: 15px; }
+        .k-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .k-table th, .k-table td { padding: 10px; border-bottom: 1px solid #334155; text-align: center; }
+        .score-in { width: 50px; text-align: center; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 5px; padding: 5px; }
+        
+        /* Cartas */
+        .hand { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .card-v { width: 50px; height: 75px; background: white; color: #1e293b; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 2px solid #cbd5e1; }
+        .card-v.red { color: var(--danger); }
+        .card-v.sel { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        
+        /* Popover Emoji */
+        .emoji-pop { position: absolute; background: var(--card); border: 1px solid var(--accent); border-radius: 15px; padding: 10px; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; z-index: 100; bottom: 60px; }
 
-<div id="onlineGameArea" style="display:none; border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px;">
-    <h2 style="font-size: 0.8rem; color: var(--accent);">MESA DE CARTAS ONLINE</h2>
-    
-    <div class="table-center">
-        <div class="deck-pile" onclick="ejecutarAccion('robar_mazo')">MAZO<br>(Robar)</div>
-        <div id="pozoDisplay" class="discard-pile">--</div>
+        .loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,0.9); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .spinner { border: 4px solid var(--accent); border-top: 4px solid transparent; width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="loader"><div class="spinner"></div></div>
+
+<div class="container">
+    <h1>Karioka Pro Ultimate</h1>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="font-size:1rem; color:var(--accent);">MODO DE JUEGO</h2>
+            <button id="btnMain" onclick="gestionarJuego()">Iniciar Partida</button>
+        </div>
+        <div id="jugadoresPartida" style="margin-top:15px;"></div>
+        
+        <div id="zonaJuego" style="display:none; margin-top:20px;">
+            <div class="table-container">
+                <table class="k-table">
+                    <thead id="hTable"></thead>
+                    <tbody id="bTable"></tbody>
+                    <tfoot id="fTable"></tfoot>
+                </table>
+            </div>
+            
+            <div id="onlineCards" style="display:none; border-top:1px solid #334155; margin-top:20px; padding-top:20px;">
+                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:20px;">
+                    <div onclick="accionCarta('robar')" style="width:60px; height:90px; background:#334155; border:2px dashed var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.7rem;">MAZO</div>
+                    <div id="pozo" style="width:60px; height:90px; background:white; color:#1e293b; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem;">--</div>
+                </div>
+                <div id="miMano" class="hand"></div>
+                <button id="btnTirar" onclick="accionCarta('tirar')" style="width:100%; margin-top:20px; background:var(--danger); display:none;">Tirar Carta Seleccionada</button>
+            </div>
+        </div>
     </div>
 
-    <p style="font-size: 0.7rem; color: var(--text-dim); text-align: center;">Tu Mano:</p>
-    <div id="myHand" class="hand-container"></div>
-    
-    <div id="gameActions" style="margin-top: 20px; display: none;">
-        <button onclick="ejecutarAccion('descartar')" style="background: var(--danger); width: 100%;">DESCARTAR CARTA SELECCIONADA</button>
+    <div class="card" style="position:relative;">
+        <h2 style="font-size:1rem; color:var(--accent); margin-bottom:15px;">GESTIÓN JUGADORES</h2>
+        <div style="display:flex; gap:10px;">
+            <div id="emojiBtn" onclick="toggleEmoji()" style="background:#334155; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;">👤</div>
+            <input type="text" id="nameIn" placeholder="Nombre...">
+            <button onclick="addJugador()">Añadir</button>
+        </div>
+        <div id="emojiWindow" class="emoji-pop">
+            <div onclick="setEmoji('👤')">👤</div><div onclick="setEmoji('🦁')">🦁</div><div onclick="setEmoji('🐯')">🐯</div>
+            <div onclick="setEmoji('🦊')">🦊</div><div onclick="setEmoji('🦄')">🦄</div><div onclick="setEmoji('🔥')">🔥</div>
+            <div onclick="setEmoji('💎')">💎</div><div onclick="setEmoji('🍀')">🍀</div><div onclick="setEmoji('🤴')">🤴</div>
+            <div onclick="setEmoji('🥷')">🥷</div>
+        </div>
+        <div id="listaTodos" style="margin-top:20px;"></div>
     </div>
+
+    <div class="card">
+        <h2 style="font-size:1rem; color:var(--accent);">RANKING KPI</h2>
+        <div style="height:250px;"><canvas id="chart"></canvas></div>
+    </div>
+
+    <details class="card">
+        <summary style="cursor:pointer; font-weight:bold; color:var(--accent);">HISTORIAL DE AUDITORÍA</summary>
+        <div id="historial" style="margin-top:15px;"></div>
+    </details>
 </div>
 
 <script>
-    let miMano = [];
-    let cartaSeleccionada = null;
-    let miNombreOnline = ""; // Debes pedir el nombre al entrar a la sala
+    const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec";
+    const RONDAS = ["2 Trios", "1 Trío 1 Escala", "2 Escalas", "3 Trios", "2 Trios 1 Escala", "1 Trío 2 Escalas", "3 Escalas", "4 Trios", "Escala Sucia", "Escala Real"];
+    
+    let db = { jugadores: [], historial: [] };
+    let seleccionados = [];
+    let emoji = "👤";
+    let activo = false;
+    let tsInicio = null;
+    let selCarta = null;
+    let miNombre = "";
 
-    // Esta función debe llamarse dentro del syncOnline()
-    function updateGameUI(state) {
-        // Actualizar Pozo
-        const pozoEl = document.getElementById('pozoDisplay');
-        pozoEl.innerText = state.pozo[0];
-        pozoEl.className = (state.pozo[0].includes('♥') || state.pozo[0].includes('♦')) ? 'discard-pile red' : 'discard-pile';
+    window.onload = load;
 
-        // Actualizar Mi Mano
-        miMano = state.manos[miNombreOnline] || [];
-        const handEl = document.getElementById('myHand');
-        handEl.innerHTML = '';
+    async function load() {
+        showL(true);
+        try {
+            const r = await fetch(API_URL);
+            db = await r.json();
+            render();
+        } catch(e) { alert("Error de conexión. Verifica tu URL de Apps Script."); }
+        showL(false);
+    }
+
+    function render() {
+        const pZone = document.getElementById('jugadoresPartida');
+        const lZone = document.getElementById('listaTodos');
+        pZone.innerHTML = ''; lZone.innerHTML = '';
+
+        db.jugadores.forEach(j => {
+            const c = document.createElement('div');
+            c.className = `chip ${seleccionados.includes(j.nombre) ? 'active' : ''}`;
+            c.innerHTML = j.nombre;
+            c.onclick = () => { if(!activo) toggleSel(j.nombre); };
+            pZone.appendChild(c);
+
+            const i = document.createElement('div');
+            i.className = 'chip';
+            i.innerHTML = j.nombre + " ✏️";
+            lZone.appendChild(i);
+        });
+        updateTable();
+        renderChart();
+        renderHist();
+    }
+
+    function toggleSel(n) {
+        if(seleccionados.includes(n)) seleccionados = seleccionados.filter(x => x !== n);
+        else seleccionados.push(n);
+        render();
+    }
+
+    function gestionarJuego() {
+        if(!activo) {
+            if(seleccionados.length < 2) return alert("Mínimo 2 jugadores.");
+            activo = true;
+            tsInicio = Date.now();
+            document.getElementById('btnMain').innerText = "Finalizar Juego";
+            document.getElementById('zonaJuego').style.display = 'block';
+        } else {
+            finalizar();
+        }
+    }
+
+    function updateTable() {
+        const h = document.getElementById('hTable');
+        const b = document.getElementById('bTable');
+        const f = document.getElementById('fTable');
         
-        miMano.forEach(c => {
-            const div = document.createElement('div');
-            const isRed = c.includes('♥') || c.includes('♦');
-            div.className = `card-virtual ${isRed ? 'red' : ''} ${cartaSeleccionada === c ? 'selected' : ''}`;
-            div.innerText = c;
-            div.onclick = () => {
-                cartaSeleccionada = c;
-                document.getElementById('gameActions').style.display = (state.fase === 'descartar' && state.jugadores[state.turnoIdx] === miNombreOnline) ? 'block' : 'none';
-                updateGameUI(state); // Refrescar para mostrar selección
-            };
-            handEl.appendChild(div);
-        });
-
-        // Mostrar u ocultar zona de juego
-        document.getElementById('onlineGameArea').style.display = 'block';
+        h.innerHTML = `<tr><th>Fase</th>${seleccionados.map(n => `<th>${n.split(' ')[1]||n}</th>`).join('')}</tr>`;
+        b.innerHTML = RONDAS.map((r, ri) => `<tr><td style="text-align:left;">${r}</td>${seleccionados.map(n => `<td><input type="number" class="score-in" data-p="${n}" oninput="sum()"></td>`).join('')}</tr>`).join('');
+        f.innerHTML = `<tr style="color:var(--accent); font-weight:bold;"><td>TOTAL</td>${seleccionados.map(n => `<td id="t_${n}">0</td>`).join('')}</tr>`;
     }
 
-    async function ejecutarAccion(tipo) {
-        if(modo !== 'online') return;
-        showLoader(true);
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                accion: "accion_juego",
-                salaId: salaId,
-                tipo: tipo,
-                usuario: miNombreOnline,
-                carta: cartaSeleccionada
-            })
+    function sum() {
+        seleccionados.forEach(n => {
+            let t = 0;
+            document.querySelectorAll(`[data-p="${n}"]`).forEach(i => t += (parseInt(i.value)||0));
+            document.getElementById(`t_${n}`).innerText = t;
         });
-        cartaSeleccionada = null;
-        await syncOnline();
-        showLoader(false);
     }
+
+    async function finalizar() {
+        let r = seleccionados.map(n => ({ n, s: parseInt(document.getElementById(`t_${n}`).innerText) })).sort((a,b) => a.s - b.s);
+        if(!confirm(`Ganador: ${r[0].n}. ¿Guardar?`)) return;
+
+        showL(true);
+        const data = {
+            accion: "guardar_juego",
+            tsInicio, tsFin: Date.now(),
+            inicio: new Date(tsInicio).toLocaleString(),
+            fin: new Date().toLocaleString(),
+            ganador: r[0].n,
+            perdedores: r.slice(1).map(x => x.n),
+            puntaje: r[0].s,
+            tabla: { jugadores: seleccionados, rondas: RONDAS }
+        };
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+        activo = false; seleccionados = [];
+        document.getElementById('btnMain').innerText = "Iniciar Partida";
+        document.getElementById('zonaJuego').style.display = 'none';
+        await load();
+    }
+
+    // Helpers
+    function showL(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+    function toggleEmoji() { const w = document.getElementById('emojiWindow'); w.style.display = w.style.display === 'grid' ? 'none' : 'grid'; }
+    function setEmoji(e) { emoji = e; document.getElementById('emojiBtn').innerText = e; toggleEmoji(); }
+    async function addJugador() {
+        const n = document.getElementById('nameIn').value;
+        if(!n) return;
+        showL(true);
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ accion: "nuevo_jugador", nombre: emoji + " " + n }) });
+        document.getElementById('nameIn').value = "";
+        await load();
+    }
+    
+    function renderChart() { /* Lógica de Chart.js */ }
+    function renderHist() { /* Lógica de historial detallado */ }
 </script>
+</body>
+</html>
