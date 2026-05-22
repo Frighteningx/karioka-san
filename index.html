@@ -28,7 +28,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             padding: 20px;
@@ -36,7 +36,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        h1, h2 {
+        h1, h2, h3 {
             text-align: center;
             color: var(--primary-dark);
             margin-top: 10px;
@@ -57,6 +57,45 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
+        }
+
+        /* Estilos para la tabla de rondas */
+        .karioka-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: #fff;
+        }
+        
+        .karioka-table th, .karioka-table td {
+            border: 1px solid #c8e6c9;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .karioka-table th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        .karioka-table td input[type="number"] {
+            margin: 0;
+            padding: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .karioka-table tfoot th {
+            background-color: var(--primary-dark);
+            font-size: 18px;
+        }
+
+        .karioka-table td strong {
+            font-size: 13px;
+            color: var(--primary-dark);
         }
 
         button {
@@ -83,6 +122,7 @@
             gap: 10px;
             margin-top: 10px;
             margin-bottom: 10px;
+            justify-content: center;
         }
 
         .player-badge {
@@ -92,22 +132,6 @@
             border-radius: 15px;
             font-size: 14px;
             font-weight: bold;
-        }
-
-        .grid-scores {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .score-card {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            text-align: center;
-            border: 1px solid #e0e0e0;
         }
 
         .chart-container {
@@ -147,7 +171,7 @@
     
     <!-- Sección de Estadísticas -->
     <div class="section">
-        <h2>Métricas de Jugadores</h2>
+        <h2>Métricas y Gráficos Históricos</h2>
         <button onclick="cargarEstadisticas()">Sincronizar con Google Sheets</button>
         <div id="loading-stats" class="loader">Sincronizando datos en línea...</div>
         <div class="chart-container">
@@ -161,20 +185,21 @@
         <input type="text" id="nuevoJugador" placeholder="Nombre del nuevo jugador...">
         <button onclick="agregarJugador()">Registrar en la Base de Datos</button>
         <div id="loading-add" class="loader">Guardando en la nube...</div>
-        <p><strong>Jugadores registrados (Haz clic para sumar a la partida):</strong></p>
+        <p style="text-align:center;"><strong>Jugadores registrados (Haz clic para sumar a la partida actual):</strong></p>
         <div class="player-list" id="listaJugadoresDisponibles"></div>
     </div>
 
     <!-- Sección de Juego Actual -->
     <div class="section">
-        <h2>Juego Actual</h2>
-        <p>Jugadores en esta partida:</p>
+        <h2>Partida en Curso</h2>
         <div class="player-list" id="jugadoresPartida"></div>
         
         <div id="zonaPuntuacion" style="display:none;">
-            <h3>Puntuación Final</h3>
-            <p>Ingresa los puntajes totales (¡Recuerda que en Karioka gana el que tenga MENOS puntos!).</p>
-            <div class="grid-scores" id="inputsPuntaje"></div>
+            <h3>Registro de Rondas</h3>
+            <p style="text-align:center; font-size: 14px;">Ingresa el puntaje de cada jugador por ronda. El total se calculará automáticamente.</p>
+            
+            <div id="contenedorTabla"></div>
+            
             <br>
             <button onclick="finalizarJuego()" style="background-color: var(--primary-dark); margin-top: 15px;">Finalizar Juego y Declarar Ganador</button>
             <div id="loading-game" class="loader">Procesando resultados y actualizando tablas...</div>
@@ -184,19 +209,23 @@
 </div>
 
 <script>
-    // URL de tu API enlazada directamente
     const API_URL = "https://script.google.com/macros/s/AKfycbw4aXd5BGL_vPhOaOuNgxzqcEEHx0hMHO-I5bP4AIs3BegvmF6Q1L9Ejlrz-Sc2lzO1Uw/exec"; 
     
+    // Lista oficial de rondas extraída del requerimiento
+    const RONDAS_KARIOKA = [
+        "2 TRIOS", "1 TRÍO 1 ESCALA", "2 ESCALAS", "3 TRIOS", 
+        "2 TRÍOS 1 ESCALA", "1 TRÍO 2 ESCALAS", "3 ESCALAS", 
+        "4 TRIOS", "ESCALA SUCIA", "ESCALA REAL", "ESCALA COLOR"
+    ];
+
     let jugadoresGlobales = [];
     let jugadoresSeleccionados = [];
     let chartInstance = null;
 
-    // Ejecución inmediata al abrir la página
     window.onload = () => {
         cargarEstadisticas();
     };
 
-    // Consultar datos al servidor
     async function cargarEstadisticas() {
         document.getElementById('loading-stats').style.display = 'block';
         try {
@@ -212,12 +241,11 @@
             }
         } catch (error) {
             console.error("Error cargando datos:", error);
-            alert("No se pudo conectar a Google Sheets. Revisa si la aplicación web está configurada para acceso de 'Cualquier persona'.");
+            alert("No se pudo conectar a Google Sheets.");
         }
         document.getElementById('loading-stats').style.display = 'none';
     }
 
-    // Registrar nuevo jugador
     async function agregarJugador() {
         const nombre = document.getElementById('nuevoJugador').value.trim();
         if (!nombre) return alert("Por favor, ingresa un nombre válido.");
@@ -239,55 +267,6 @@
         document.getElementById('loading-add').style.display = 'none';
     }
 
-    // Calcular ganador y enviar al historial
-    async function finalizarJuego() {
-        if(jugadoresSeleccionados.length < 2) return alert("Se necesitan al menos 2 jugadores para registrar una partida.");
-        
-        let resultados = [];
-        for (let nombre of jugadoresSeleccionados) {
-            let puntaje = parseInt(document.getElementById(`score_${nombre}`).value);
-            if (isNaN(puntaje)) return alert(`Falta ingresar el puntaje de: ${nombre}`);
-            resultados.push({ nombre, puntaje });
-        }
-
-        // Karioka: El menor puntaje es el ganador
-        resultados.sort((a, b) => a.puntaje - b.puntaje);
-        
-        const ganador = resultados[0].nombre;
-        const puntajeGanador = resultados[0].puntaje;
-        const perdedores = resultados.slice(1).map(r => r.nombre);
-
-        if(!confirm(`🏆 ¡El ganador es ${ganador} con ${puntajeGanador} puntos!\n\n¿Confirmas que deseas subir este juego a Google Sheets?`)) return;
-
-        document.getElementById('loading-game').style.display = 'block';
-
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    accion: "guardar_juego", 
-                    ganador: ganador,
-                    puntajeGanador: puntajeGanador,
-                    perdedores: perdedores
-                }),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            });
-            
-            // Reiniciar estado del juego
-            jugadoresSeleccionados = [];
-            document.getElementById('zonaPuntuacion').style.display = 'none';
-            renderizarJugadoresDisponibles();
-            await cargarEstadisticas();
-            alert("¡Partida registrada y estadísticas actualizadas en la nube con éxito!");
-
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Error al intentar salvar el juego.");
-        }
-        document.getElementById('loading-game').style.display = 'none';
-    }
-
-    // Dibujar elementos en pantalla
     function renderizarJugadoresDisponibles() {
         const div = document.getElementById('listaJugadoresDisponibles');
         div.innerHTML = '';
@@ -309,6 +288,9 @@
     function toggleJugadorPartida(nombre) {
         if (!jugadoresSeleccionados.includes(nombre)) {
             jugadoresSeleccionados.push(nombre);
+        } else {
+            // Permitir deseleccionar si se equivocó
+            jugadoresSeleccionados = jugadoresSeleccionados.filter(j => j !== nombre);
         }
         actualizarUIJuego();
     }
@@ -316,36 +298,113 @@
     function actualizarUIJuego() {
         const divPartida = document.getElementById('jugadoresPartida');
         const zonaPuntuacion = document.getElementById('zonaPuntuacion');
-        const inputsPuntaje = document.getElementById('inputsPuntaje');
+        const contenedorTabla = document.getElementById('contenedorTabla');
         
         divPartida.innerHTML = '';
-        inputsPuntaje.innerHTML = '';
+        contenedorTabla.innerHTML = '';
 
         if (jugadoresSeleccionados.length > 0) {
             zonaPuntuacion.style.display = 'block';
         } else {
             zonaPuntuacion.style.display = 'none';
+            return;
         }
 
+        // Mostrar badges de los jugadores actuales
         jugadoresSeleccionados.forEach(nombre => {
-            // Badges visuales de quién juega
             const span = document.createElement('span');
             span.className = 'player-badge';
             span.textContent = nombre;
             divPartida.appendChild(span);
+        });
 
-            // Cajas para meter el puntaje final de la partida
-            const card = document.createElement('div');
-            card.className = 'score-card';
-            card.innerHTML = `
-                <strong>${nombre}</strong>
-                <input type="number" id="score_${nombre}" placeholder="Puntos totales" min="0">
-            `;
-            inputsPuntaje.appendChild(card);
+        // Construir la tabla dinámica de rondas
+        let tableHTML = `<div style="overflow-x: auto;"><table class="karioka-table">
+            <thead>
+                <tr>
+                    <th>ORDEN</th>
+                    ${jugadoresSeleccionados.map(p => `<th>${p}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        RONDAS_KARIOKA.forEach((ronda, index) => {
+            tableHTML += `<tr>
+                <td><strong>${ronda}</strong></td>
+                ${jugadoresSeleccionados.map(p => `<td><input type="number" min="0" class="score-input" data-player="${p}" oninput="calcularTotales()"></td>`).join('')}
+            </tr>`;
+        });
+
+        tableHTML += `</tbody>
+            <tfoot>
+                <tr>
+                    <th>TOTAL</th>
+                    ${jugadoresSeleccionados.map(p => `<th id="total_${p}">0</th>`).join('')}
+                </tr>
+            </tfoot>
+        </table></div>`;
+
+        contenedorTabla.innerHTML = tableHTML;
+    }
+
+    function calcularTotales() {
+        jugadoresSeleccionados.forEach(p => {
+            let total = 0;
+            document.querySelectorAll(`.score-input[data-player="${p}"]`).forEach(input => {
+                total += parseInt(input.value) || 0;
+            });
+            document.getElementById(`total_${p}`).textContent = total;
         });
     }
 
-    // Renderizar gráfico de barras apiladas
+    async function finalizarJuego() {
+        if(jugadoresSeleccionados.length < 2) return alert("Se necesitan al menos 2 jugadores para registrar una partida.");
+        
+        // Recopilar los resultados basados en los totales calculados
+        let resultados = [];
+        for (let nombre of jugadoresSeleccionados) {
+            let puntajeStr = document.getElementById(`total_${nombre}`).textContent;
+            let puntaje = parseInt(puntajeStr);
+            if (isNaN(puntaje)) puntaje = 0;
+            resultados.push({ nombre, puntaje });
+        }
+
+        // Karioka: El menor puntaje es el ganador
+        resultados.sort((a, b) => a.puntaje - b.puntaje);
+        
+        const ganador = resultados[0].nombre;
+        const puntajeGanador = resultados[0].puntaje;
+        const perdedores = resultados.slice(1).map(r => r.nombre);
+
+        if(!confirm(`🏆 ¡El ganador final es ${ganador} con ${puntajeGanador} puntos!\n\n¿Confirmas que deseas enviar las estadísticas a Google Sheets?`)) return;
+
+        document.getElementById('loading-game').style.display = 'block';
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    accion: "guardar_juego", 
+                    ganador: ganador,
+                    puntajeGanador: puntajeGanador,
+                    perdedores: perdedores
+                }),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            });
+            
+            jugadoresSeleccionados = [];
+            document.getElementById('zonaPuntuacion').style.display = 'none';
+            renderizarJugadoresDisponibles();
+            await cargarEstadisticas();
+            alert("¡Partida registrada y estadísticas actualizadas en la nube con éxito!");
+
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error al intentar salvar el juego.");
+        }
+        document.getElementById('loading-game').style.display = 'none';
+    }
+
     function renderizarGrafico() {
         const ctx = document.getElementById('statsChart').getContext('2d');
         
